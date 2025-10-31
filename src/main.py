@@ -1,21 +1,24 @@
 import flet as ft
 
-from views.FletRouter import FletRouter
+from router.FletRouter import FletRouter
+from router.RouterBody import RouterBody
 
 from layout.LayoutTop import LayoutTop
 from layout.LayoutBottom import LayoutBottom
+from AppContext import AppContext
+from events.AppEvents import AppEvents
 
 
 def main(page: ft.Page):
-    fletRouter = FletRouter(page, ft)
+    app = AppContext(page, FletRouter(page), AppEvents())
+    routerBody = RouterBody(app)
 
-    page.session.set("router", fletRouter)
-    page.on_route_change = fletRouter.route_change
+    page.on_route_change = routerBody.route_change
     page.go(".")
 
-    page.add(LayoutTop(page))
-    page.add(fletRouter.body)
-    # page.add(LayoutBottom(page))
+    page.add(LayoutTop(app))
+    page.add(routerBody.body)
+    page.add(LayoutBottom(app))
 
 
 ft.app(main)

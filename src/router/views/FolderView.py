@@ -1,7 +1,10 @@
 import flet as ft, datetime
 from pathlib import Path
+from AppContext import AppContext
 
-def FolderView(page: ft.Page):
+def FolderView(app: AppContext):
+    page = app.page
+    
     def map_scandir(item: Path):
         extension = "Папка" if item.is_dir() else "Файл ." + item.name.split(".")[-1]
 

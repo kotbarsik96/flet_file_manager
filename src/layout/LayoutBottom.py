@@ -1,4 +1,7 @@
 import flet as ft
 
-def LayoutBottom(page: ft.Page):
-    pass
+from AppContext import AppContext
+
+
+def LayoutBottom(app: AppContext):
+    return ft.Row([ft.Text("")])
