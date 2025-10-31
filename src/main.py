@@ -15,6 +15,8 @@ def main(page: ft.Page):
 
     page.on_route_change = routerBody.route_change
     page.go(".")
+    
+    page.scroll = ft.ScrollMode.ADAPTIVE
 
     page.add(LayoutTop(app).control)
     page.add(routerBody.body)

@@ -3,7 +3,7 @@ import flet as ft
 class FletRouter:
     history_backward = []
     history_forward = []
-    history_current: str | None = None
+    current_route: str | None = None
 
     def __init__(self, page: ft.Page):
         self.page = page
