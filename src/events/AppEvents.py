@@ -1,4 +1,4 @@
-from Event import Event
+from events.Event import Event
 
 class AppEvents:
     def __init__(self):
