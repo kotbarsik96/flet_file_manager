@@ -3,5 +3,12 @@ import flet as ft
 from AppContext import AppContext
 
 
-def LayoutBottom(app: AppContext):
-    return ft.Row([ft.Text("")])
+class LayoutBottom:
+    control: ft.Text
+
+    def __init__(self, app: AppContext):
+        self.app = app
+        self.init_layout()
+
+    def init_layout(self):
+        self.control = ft.Text("")

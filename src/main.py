@@ -16,9 +16,9 @@ def main(page: ft.Page):
     page.on_route_change = routerBody.route_change
     page.go(".")
 
-    page.add(LayoutTop(app))
+    page.add(LayoutTop(app).control)
     page.add(routerBody.body)
-    page.add(LayoutBottom(app))
+    page.add(LayoutBottom(app).control)
 
 
 ft.app(main)

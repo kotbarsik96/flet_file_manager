@@ -3,31 +3,35 @@ import flet as ft
 from AppContext import AppContext
 
 
-def LayoutTop(app: AppContext):
-    fletRouter = app.router
+class LayoutTop:
+    control: ft.Row
+    
+    def __init__(self, app: AppContext):
+        self.app = app
+        self.fletRouter = app.router
+        self.init_layout()
+        
+    def init_layout(self):
+        self.buttonBack = ft.IconButton(
+            icon=ft.Icons.CHEVRON_LEFT,
+            on_click=lambda _: self.fletRouter.go_prev_route(),
+        )
+        self.buttonForward = ft.IconButton(
+            icon=ft.Icons.CHEVRON_RIGHT,
+            on_click=lambda _: self.fletRouter.go_next_route(),
+        )
+        
+        self.control = ft.Row(
+            [
+                self.buttonBack,
+                self.buttonForward,
+            ],
+        )
+        
+        self.app.events.route_changed.subscribe(self.on_route_change)
+        
+    def on_route_change(self, **_):
+        self.buttonBack.disabled = len(self.fletRouter.history_backward) < 1
+        self.buttonForward.disabled = len(self.fletRouter.history_forward) < 1
 
-    buttonBack = ft.IconButton(
-        icon=ft.Icons.CHEVRON_LEFT,
-        on_click=lambda _: fletRouter.go_prev_route(),
-    )
-    buttonForward = ft.IconButton(
-        icon=ft.Icons.CHEVRON_RIGHT,
-        on_click=lambda _: fletRouter.go_next_route(),
-    )
-
-    leading = ft.Row(
-        [
-            buttonBack,
-            buttonForward,
-        ],
-    )
-
-    def set_buttons_state(**_):
-        buttonBack.disabled = len(fletRouter.history_backward) < 1
-        buttonForward.disabled = len(fletRouter.history_forward) < 1
-
-        app.page.update()
-
-    app.events.route_changed.subscribe(set_buttons_state)
-
-    return leading
+        self.app.page.update()
