@@ -18,24 +18,29 @@ class RouterBody:
         prev_route = fletRouter.get_previuos_route()
         next_route = fletRouter.get_next_route()
 
+        is_forward = False
+        is_backward = route.route and prev_route and route.route == prev_route
+        is_forward = route.route and next_route and route.route == next_route
+
         # обычный переход - не назад и не вперёд
-        if route.route and route.route != prev_route and route.route != next_route:
+        if not is_forward and not is_backward:
             if fletRouter.history_current:
                 fletRouter.history_backward.append(fletRouter.history_current)
             fletRouter.history_forward.clear()
             fletRouter.history_current = route.route
         # переход назад
-        elif prev_route and route.route == prev_route:
+        elif is_backward:
             fletRouter.history_forward.insert(0, fletRouter.history_current)
             fletRouter.history_current = prev_route
             fletRouter.history_backward.pop()
         # переход вперёд
-        elif next_route and route.route == next_route:
+        elif is_forward:
             fletRouter.history_backward.append(fletRouter.history_current)
             fletRouter.history_current = next_route
             fletRouter.history_forward.pop(0)
 
         self.body.content = FolderView(self.app)
         self.body.update()
-        
-        # events.route_changed.trigger()
+        events.route_changed.trigger(
+            route=route.route, is_forward=is_forward, is_backward=is_backward
+        )

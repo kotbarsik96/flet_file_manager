@@ -20,10 +20,10 @@ class FletRouter:
         else:
             return None
         
-    def go_next_route(self):
+    def go_prev_route(self):
         if len(self.history_backward) > 0 and self.history_backward[-1]:
             self.page.go(self.history_backward[-1])
             
-    def go_prev_route(self):
+    def go_next_route(self):
         if len(self.history_forward) > 0 and self.history_forward[0]:
             self.page.go(self.history_forward[0])
