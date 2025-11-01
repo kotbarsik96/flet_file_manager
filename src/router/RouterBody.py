@@ -39,7 +39,7 @@ class RouterBody:
             fletRouter.current_route = next_route
             fletRouter.history_forward.pop(0)
 
-        self.body.content = FolderView(self.app)
+        self.body.content = FolderView(self.app).view
         self.body.update()
         events.route_changed.trigger(
             route=route.route, is_forward=is_forward, is_backward=is_backward

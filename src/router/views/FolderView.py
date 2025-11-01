@@ -2,10 +2,14 @@ import flet as ft, datetime
 from pathlib import Path
 from AppContext import AppContext
 
-def FolderView(app: AppContext):
-    page = app.page
-    
-    def map_scandir(item: Path):
+default_path = "."
+
+class FolderView:
+    def __init__(self, app: AppContext):
+        self.page = app.page
+        self.build_view()
+
+    def map_scandir(self, item: Path):
         extension = "Папка" if item.is_dir() else "Файл ." + item.name.split(".")[-1]
 
         formatDatetime = "%d.%m.%Y, %H:%M:%S"
@@ -26,29 +30,41 @@ def FolderView(app: AppContext):
 
 
         if item.is_dir():
-            row.on_select_changed = lambda _: page.go(str(item.absolute()))
+            row.on_select_changed = lambda _: self.page.go(str(item.absolute()))
 
         return row
 
-    it = Path(page.route)
-    columns = [
-        ft.DataColumn(ft.Text("Название")),
-        ft.DataColumn(ft.Text("Тип")),
-        ft.DataColumn(ft.Text("Дата создания")),
-        ft.DataColumn(ft.Text("Дата изменения")),
-    ]
-    rows = list(
-        map(
-            map_scandir,
-            it.iterdir(),
-        )
-    )
-
-    return ft.Column(
-        [
-            ft.DataTable(
-                columns=columns,
-                rows=rows,
+    def route_to_path(self):
+        return str(Path(self.page.route).absolute())
+    
+    def build_view(self):
+        path = self.route_to_path()
+        it = Path(path)
+        if not it.exists():
+            it = Path(default_path)
+            dlg = ft.AlertDialog(
+                title=ft.Text(f"Указанный путь \"{path}\" не существует")
             )
-        ],
-    )
+            self.page.open(dlg)
+            
+        columns = [
+            ft.DataColumn(ft.Text("Название")),
+            ft.DataColumn(ft.Text("Тип")),
+            ft.DataColumn(ft.Text("Дата создания")),
+            ft.DataColumn(ft.Text("Дата изменения")),
+        ]
+        rows = list(
+            map(
+                self.map_scandir,
+                it.iterdir(),
+            )
+        )
+
+        self.view = ft.Column(
+            [
+                ft.DataTable(
+                    columns=columns,
+                    rows=rows,
+                )
+            ],
+        )
