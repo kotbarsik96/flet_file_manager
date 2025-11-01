@@ -19,9 +19,9 @@ def main(page: ft.Page):
     
     page.scroll = ft.ScrollMode.ADAPTIVE
 
-    page.add(LayoutTop(app).control)
+    page.add(LayoutTop(app).layout)
     page.add(routerBody.body)
-    page.add(LayoutBottom(app).control)
+    page.add(LayoutBottom(app).layout)
 
 
 ft.app(main)

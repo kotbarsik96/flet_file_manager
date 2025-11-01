@@ -1,14 +1,8 @@
 import flet as ft
 
-from AppContext import AppContext
+from layout.BaseLayout import BaseLayout
 
 
-class LayoutBottom:
-    control: ft.Text
-
-    def __init__(self, app: AppContext):
-        self.app = app
-        self.init_layout()
-
-    def init_layout(self):
-        self.control = ft.Text("")
+class LayoutBottom(BaseLayout):
+    def build_layout(self):
+        self.layout = ft.Text("")
