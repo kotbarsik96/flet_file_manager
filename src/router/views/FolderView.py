@@ -1,10 +1,10 @@
 import flet as ft, datetime
 from pathlib import Path
-from router.views.ViewBase import ViewBase
+from router.views.BaseView import BaseView
 from utils.file_system import format_bytes_to_string, get_dir_size
 
 
-class FolderView(ViewBase):
+class FolderView(BaseView):
     default_path = "."
 
     def route_to_path(self):
