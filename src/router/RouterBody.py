@@ -9,7 +9,9 @@ class RouterBody:
 
     def __init__(self, app: AppContext):
         self.app = app
-        self.body = ft.Container()
+        self.body = ft.Container(
+            margin=ft.margin.only(bottom=50, top=25)
+        )
 
     def route_change(self, route):
         fletRouter = self.app.router

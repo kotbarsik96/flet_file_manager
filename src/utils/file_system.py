@@ -4,7 +4,7 @@ import os
 def format_bytes_to_string(file_size_bytes: int, round_to_decimals: int = 0) -> str:
     num = file_size_bytes
 
-    for unit in ("Байт", "КБ", "МБ", "ТБ"):
+    for unit in ("Байт", "КБ", "МБ", "ГБ", "ТБ"):
         if abs(num) < 1024.0:
             if round_to_decimals > 0: 
                 num = round(num, round_to_decimals)
@@ -31,3 +31,5 @@ def get_dir_size(directoryPath: str) -> int:
         return 0
 
     return total
+
+    
