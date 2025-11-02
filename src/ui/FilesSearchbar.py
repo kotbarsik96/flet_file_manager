@@ -12,6 +12,8 @@ class FilesSearchbar:
             on_change=self.handle_change,
             on_tap=self.handle_tap,
             controls=[self.listView],
+            bar_hint_text="Поиск во вложенных каталогах...",
+            view_hint_text="Название файла или папки"
         )
 
     def handle_change(self, e: ft.ControlEvent):
@@ -31,7 +33,9 @@ class FilesSearchbar:
                     ft.ListTile(
                         title=ft.Text(entry.name),
                         subtitle=ft.Text(str(entry.absolute())),
-                        on_click=lambda _, iteration_entry=entry: on_item_click(str(iteration_entry.absolute())),
+                        on_click=lambda _, iteration_entry=entry: on_item_click(
+                            str(iteration_entry.absolute())
+                        ),
                     )
                 )
 
