@@ -16,7 +16,7 @@ class LayoutTop(BaseLayout):
             on_click=lambda _: self.app.router.go_next_route(),
         )
 
-        self.location_text = ft.Text(self.app.router.current_route)
+        self.location_text = ft.Text(self.app.router.current_route, size=21)
 
         self.searchbar = FilesSearchbar(self.app)
 
@@ -31,6 +31,7 @@ class LayoutTop(BaseLayout):
                 ),
                 self.location_text,
             ],
+            spacing=20
         )
 
         self.app.events.route_changed.subscribe(self.on_route_change)

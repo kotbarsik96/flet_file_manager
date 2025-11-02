@@ -2,6 +2,8 @@ import flet as ft, datetime
 from pathlib import Path
 from router.views.BaseView import BaseView
 from utils.file_system import format_bytes_to_string, get_dir_size
+from utils.time import format_seconds
+import time
 
 
 class FolderView(BaseView):
@@ -34,12 +36,14 @@ class FolderView(BaseView):
             )
         )
 
-        self.view = ft.Column(
+        self.view = ft.ResponsiveRow(
             [
                 ft.DataTable(
                     columns=columns,
                     rows=rows,
-                )
+                    width=750
+                ),
+                self.create_timers(),
             ],
         )
 
@@ -73,3 +77,13 @@ class FolderView(BaseView):
             row.on_select_changed = lambda _: self.app.page.go(str(item.absolute()))
 
         return row
+
+    def create_timers(self):
+        os_session_timer = ft.Row(
+            [
+                ft.Text("Время работы операционной системы:", size=16),
+                ft.Text(format_seconds(time.monotonic())),
+            ]
+        )
+
+        return ft.Column([os_session_timer])
