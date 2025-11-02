@@ -22,17 +22,16 @@ class FilesSearchbar:
             current_dir = Path(self.app.router.current_route)
             rglob = current_dir.rglob(search_value)
 
-            def on_item_click(*_):
+            def on_item_click(path: str):
                 self.app.page.go(path)
-                self.control.close_view()
+                self.control.close_view(search_value)
 
             for entry in rglob:
-                path = str(entry.absolute())
                 self.listView.controls.append(
                     ft.ListTile(
                         title=ft.Text(entry.name),
-                        subtitle=ft.Text(path),
-                        on_click=on_item_click,
+                        subtitle=ft.Text(str(entry.absolute())),
+                        on_click=lambda _, entry=entry: on_item_click(str(entry.absolute())),
                     )
                 )
 
