@@ -2,6 +2,7 @@ import flet as ft
 
 from layout.BaseLayout import BaseLayout
 from pathlib import Path
+from ui.FilesSearchbar import FilesSearchbar
 
 
 class LayoutTop(BaseLayout):
@@ -17,8 +18,19 @@ class LayoutTop(BaseLayout):
 
         self.location_text = ft.Text(self.app.router.current_route)
 
-        self.layout = ft.Row(
-            [self.buttonBack, self.buttonForward, self.location_text],
+        self.searchbar = FilesSearchbar(self.app)
+
+        self.layout = ft.Column(
+            [
+                ft.Row(
+                    [
+                        self.buttonBack,
+                        self.buttonForward,
+                        self.searchbar.control,
+                    ],
+                ),
+                self.location_text,
+            ],
         )
 
         self.app.events.route_changed.subscribe(self.on_route_change)
