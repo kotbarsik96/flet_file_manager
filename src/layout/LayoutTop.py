@@ -18,20 +18,24 @@ class LayoutTop(BaseLayout):
 
         self.location_text = ft.Text(self.app.router.current_route, size=21)
 
-        self.searchbar = FilesSearchbar(self.app)
+        self.searchbar = FilesSearchbar(self.app, col={"xs": 12, "lg": 6})
 
         self.layout = ft.Column(
             [
-                ft.Row(
+                ft.ResponsiveRow(
                     [
-                        self.buttonBack,
-                        self.buttonForward,
+                        ft.Row(
+                            [self.buttonBack, self.buttonForward],
+                            col=1
+                        ),
                         self.searchbar.control,
                     ],
+                    columns=12,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER
                 ),
                 self.location_text,
             ],
-            spacing=20
+            spacing=20,
         )
 
         self.app.events.route_changed.subscribe(self.on_route_change)

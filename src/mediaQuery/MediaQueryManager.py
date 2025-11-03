@@ -1,5 +1,6 @@
 import flet as ft
 
+
 class MediaQueryManager:
     def __init__(self):
         self.breakpoints = {}
@@ -8,6 +9,7 @@ class MediaQueryManager:
 
     def on_resized(self, event: ft.WindowResizeEvent):
         self.check_for_updates(event.width)
+        print(event.width)
 
     def check_for_updates(self, width):
         for name, (min_width, max_width) in self.breakpoints.items():

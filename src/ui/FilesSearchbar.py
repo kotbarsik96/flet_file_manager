@@ -5,7 +5,7 @@ from AppContext import AppContext
 
 
 class FilesSearchbar:
-    def __init__(self, app: AppContext):
+    def __init__(self, app: AppContext, col: dict[str, int] | int | None = None):
         self.app = app
         self.listView = ft.ListView(controls=[])
         self.control = ft.SearchBar(
@@ -13,7 +13,8 @@ class FilesSearchbar:
             on_tap=self.handle_tap,
             controls=[self.listView],
             bar_hint_text="Поиск во вложенных каталогах...",
-            view_hint_text="Название файла или папки"
+            view_hint_text="Название файла или папки",
+            col=col
         )
 
     def handle_change(self, e: ft.ControlEvent):

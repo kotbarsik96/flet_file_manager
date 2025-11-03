@@ -2,7 +2,7 @@ import flet as ft, datetime
 from pathlib import Path
 from router.views.BaseView import BaseView
 from utils.file_system import format_bytes_to_string, get_dir_size
-from utils.time import format_seconds
+from utils.time import format_seconds, SetInterval
 import time
 
 
@@ -39,12 +39,12 @@ class FolderView(BaseView):
         self.view = ft.ResponsiveRow(
             [
                 ft.DataTable(
-                    columns=columns,
-                    rows=rows,
-                    width=750
+                    columns=columns, rows=rows, width=750, col={"xs": 12, "xl": 8}
                 ),
                 self.create_timers(),
             ],
+            columns=12,
+            spacing=20,
         )
 
     def map_scandir(self, item: Path):
@@ -79,11 +79,19 @@ class FolderView(BaseView):
         return row
 
     def create_timers(self):
-        os_session_timer = ft.Row(
+        os_session_timer_text = ft.Text(format_seconds(time.monotonic()), size=18)
+
+        def update_timers():
+            os_session_timer_text.value = format_seconds(time.monotonic())
+            self.app.page.update()
+
+        SetInterval(update_timers, 1)
+
+        os_session_timer_control = ft.Row(
             [
-                ft.Text("Время работы операционной системы:", size=16),
-                ft.Text(format_seconds(time.monotonic())),
+                ft.Text("Время работы операционной системы:", size=18),
+                os_session_timer_text,
             ]
         )
 
-        return ft.Column([os_session_timer])
+        return ft.Column([os_session_timer_control], col={"xs": 12, "xl": 4})
