@@ -87,7 +87,7 @@ class FolderView(BaseView):
 
         SetInterval(update_timers, 1)
 
-        os_session_timer_control = ft.Row(
+        os_session_timer_control = ft.Column(
             [
                 ft.Text("Время работы операционной системы:", size=18),
                 os_session_timer_text,
