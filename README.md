@@ -1,5 +1,11 @@
 # Project app
 
+linux:
+git clone https://github.com/kotbarsik96/flet_file_manager.git
+cd flet_file_manager
+python3 -m venv .venv
+source .venv/bin/activate
+
 ## Run the app
 
 ### uv
