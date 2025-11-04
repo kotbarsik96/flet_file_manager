@@ -80,17 +80,31 @@ class FolderView(BaseView):
 
     def create_timers(self):
         os_session_timer_text = ft.Text(format_seconds(time.monotonic()), size=18)
+        app_session_timer_text = ft.Text(
+            format_seconds(self.app.app_running_seconds), size=18
+        )
 
         def update_timers():
             os_session_timer_text.value = format_seconds(time.monotonic())
+            app_session_timer_text.value = format_seconds(self.app.app_running_seconds)
             self.app.page.update()
 
         SetInterval(update_timers, 1)
 
         os_session_timer_control = ft.Column(
             [
-                ft.Text("Время работы операционной системы:", size=18),
-                os_session_timer_text,
+                ft.Column(
+                    [
+                        ft.Text("Время работы операционной системы:", size=18),
+                        os_session_timer_text,
+                    ]
+                ),
+                ft.Column(
+                    [
+                        ft.Text("Время работы приложения:", size=18),
+                        app_session_timer_text,
+                    ]
+                ),
             ]
         )
 
