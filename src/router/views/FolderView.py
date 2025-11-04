@@ -25,7 +25,6 @@ class FolderView(BaseView):
         columns = [
             ft.DataColumn(ft.Text("Название")),
             ft.DataColumn(ft.Text("Тип")),
-            ft.DataColumn(ft.Text("Дата создания")),
             ft.DataColumn(ft.Text("Дата изменения")),
             ft.DataColumn(ft.Text("Вес")),
         ]
@@ -57,9 +56,6 @@ class FolderView(BaseView):
         )
 
         formatDatetime = "%d.%m.%Y, %H:%M:%S"
-        created = datetime.datetime.fromtimestamp(stat.st_birthtime).strftime(
-            formatDatetime
-        )
         updated = datetime.datetime.fromtimestamp(stat.st_mtime).strftime(
             formatDatetime
         )
@@ -67,7 +63,6 @@ class FolderView(BaseView):
             cells=[
                 ft.DataCell(ft.Text(item.name)),
                 ft.DataCell(ft.Text(extension)),
-                ft.DataCell(ft.Text(created)),
                 ft.DataCell(ft.Text(updated)),
                 ft.DataCell(ft.Text(size)),
             ],
