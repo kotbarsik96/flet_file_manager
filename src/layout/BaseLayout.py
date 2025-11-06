@@ -1,5 +1,5 @@
 import flet as ft
-from AppContext import AppContext
+from Core import AppContext
 
 
 class BaseLayout:

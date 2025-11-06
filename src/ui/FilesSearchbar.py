@@ -1,7 +1,7 @@
 import flet as ft
 
 from pathlib import Path
-from AppContext import AppContext
+from Core import AppContext
 
 
 class FilesSearchbar:

@@ -1,12 +1,11 @@
 import flet as ft
-import time
 
 from router.FletRouter import FletRouter
 from router.RouterBody import RouterBody
 
 from layout.LayoutTop import LayoutTop
 from layout.LayoutBottom import LayoutBottom
-from AppContext import AppContext
+from Core import AppContext
 from events.AppEvents import AppEvents
 from mediaQuery.MediaQueryManager import MediaQueryManager
 
@@ -17,7 +16,7 @@ def main(page: ft.Page):
     page.on_resized = app.media_query_manager.on_resized
 
     page.on_route_change = routerBody.route_change
-    page.go(".")
+    page.go(app.app_root_path)
 
     page.scroll = ft.ScrollMode.ADAPTIVE
 

@@ -1,6 +1,6 @@
 import flet as ft
 
-from AppContext import AppContext
+from Core import AppContext
 
 class MediaQuery:
     def __init__(self, app: AppContext):

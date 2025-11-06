@@ -1,17 +1,24 @@
 import flet as ft
-from AppContext import AppContext
+from Core import AppContext
+from router.views.BaseView import BaseView
 from router.views.FolderView import FolderView
-
+from router.views.TrashView import TrashView
 
 class RouterBody:
     app: AppContext
     body: ft.Container
+    current_view: BaseView
 
     def __init__(self, app: AppContext):
         self.app = app
         self.body = ft.Container(
             margin=ft.margin.only(bottom=50, top=25)
         )
+        
+    def get_static_routes(self):
+        return {
+            f"{self.app.app_root_path}trash": TrashView
+        }
 
     def route_change(self, route):
         fletRouter = self.app.router
@@ -41,8 +48,19 @@ class RouterBody:
             fletRouter.current_route = next_route
             fletRouter.history_forward.pop(0)
 
-        self.body.content = FolderView(self.app).view
+        self.body.content = self.create_view(route).view
         self.body.update()
         events.route_changed.trigger(
             route=route.route, is_forward=is_forward, is_backward=is_backward
         )
+        
+    def create_view(self, route):
+        static_routes = self.get_static_routes()
+        view = None
+        
+        if(route.route in static_routes):
+            view = static_routes[route.route](self.app)
+        else:
+            view = FolderView(self.app)
+        
+        return view
