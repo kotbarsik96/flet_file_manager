@@ -2,15 +2,24 @@ import flet as ft
 import shutil
 
 from pathlib import Path
-from layout.BaseLayout import BaseLayout
+from view.BaseView import BaseView
+from Core import System
+from Router import Router
 from utils.file_system import format_bytes_to_string
 
 
-class LayoutBottom(BaseLayout):
-    def build_layout(self):
+class LayoutBottom(BaseView):
+    def __init__(self, page: ft.Page, system: System, router: Router):
+        self.page = page
+        self.system = system
+        self.router = router
+        
+        self.build_view()
+    
+    def build_view(self):
         path = (
-            str(Path(self.app.router.current_route).absolute())
-            if self.app.router.current_route
+            str(Path(self.router.current_route).absolute())
+            if self.router.current_route
             else "."
         )
         total, used, free = shutil.disk_usage(path)
@@ -22,7 +31,7 @@ class LayoutBottom(BaseLayout):
         container_width = 1000
         bar_height = 5
 
-        self.layout = ft.Column(
+        self.view = ft.Column(
             [
                 ft.Row(
                     [

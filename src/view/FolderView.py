@@ -1,16 +1,22 @@
 import flet as ft, datetime
 from pathlib import Path
-from router.views.BaseView import BaseView
 from utils.file_system import format_bytes_to_string, get_dir_size
 from utils.time import format_seconds, SetInterval
 import time
+from view.BaseView import BaseView
+from Core import System
 
 
 class FolderView(BaseView):
     default_path = "."
 
+    def __init__(self, page: ft.Page, system: System):
+        self.page = page
+        self.system = system
+        self.build_view()
+
     def route_to_path(self):
-        return str(Path(self.app.page.route).absolute())
+        return str(Path(self.page.route).absolute())
 
     def build_view(self):
         path = self.route_to_path()
@@ -20,7 +26,7 @@ class FolderView(BaseView):
             dlg = ft.AlertDialog(
                 title=ft.Text(f'Указанный путь "{path}" не существует')
             )
-            self.app.page.open(dlg)
+            self.page.open(dlg)
 
         columns = [
             ft.DataColumn(ft.Text("Название")),
@@ -69,22 +75,24 @@ class FolderView(BaseView):
         )
 
         if item.is_dir():
-            row.on_select_changed = lambda _: self.app.page.go(str(item.absolute()))
+            row.on_select_changed = lambda _: self.page.go(str(item.absolute()))
 
         return row
 
     def create_timers(self):
         font_size = 18
-        
-        os_session_timer_text = ft.Text(format_seconds(time.monotonic()), size=font_size)
+
+        os_session_timer_text = ft.Text(
+            format_seconds(time.monotonic()), size=font_size
+        )
         app_session_timer_text = ft.Text(
-            format_seconds(self.app.app_running_seconds), size=font_size
+            format_seconds(self.system.app_running_seconds), size=font_size
         )
 
         def update_timers():
             os_session_timer_text.value = format_seconds(time.monotonic())
-            app_session_timer_text.value = format_seconds(self.app.app_running_seconds)
-            self.app.page.update()
+            app_session_timer_text.value = format_seconds(self.system.app_running_seconds)
+            self.page.update()
 
         SetInterval(update_timers, 1)
 

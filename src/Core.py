@@ -1,27 +1,20 @@
 import flet as ft
-
-from router.FletRouter import FletRouter
-from events.AppEvents import AppEvents
-from utils.time import SetInterval
 from pathlib import Path
+from utils.time import SetInterval
+import shutil
+import logging
+from logging.handlers import WatchedFileHandler
 
 
-class AppContext:
+class System:
     app_running_seconds: int
-
-    def __init__(
-        self,
-        page: ft.Page,
-        router: FletRouter,
-        events: AppEvents
-    ):
-        self.app_root_path = str(Path(".").absolute())
-        self.system = System(self.app_root_path)
-
-        self.page = page
-        self.router = router
-        self.events = events
-
+    
+    def __init__(self, root_path: Path):
+        self.root_path = root_path
+        self.system_path = root_path / "system"
+        self.system_path.mkdir(parents=True, exist_ok=True)
+        self.trash = Trash(self.system_path)
+        self.logger = Logger(self.system_path)
         self.init_timer()
 
     def init_timer(self):
@@ -32,29 +25,29 @@ class AppContext:
         SetInterval(update_timer, 1)
 
 
-class System:
-    protected_paths = []
+class Trash:
+    def __init__(self, system_path: Path):
+        self.system_path = system_path
+        self.path = self.system_path / "trash"
+        self.path.mkdir(parents=True, exist_ok=True)
 
-    def __init__(self, app_root_path):
-        self.app_root_path = app_root_path
-        self.system_path = f"{self.app_root_path}/system"
+    def add(self, path: Path):
+        return Path(shutil.move(str(path), str(self.path)))
 
-        if not Path(self.system_path).exists():
-            self.path = Path.mkdir(self.system_path)
 
-        self.init_logging()
-        self.init_folder("trash")
+class Logger:
+    def __init__(self, system_path: Path):
+        self.system_path = system_path
+        self.path = self.system_path / "app.log"
+        self.path.touch(exist_ok=True)
 
-    def get_path(self, to_path):
-        return f"{self.system_path}/{to_path}"
+        self.init_logger()
 
-    def init_folder(self, f_name):
-        folder_path = self.get_path(f_name)
-        if not Path(folder_path).exists():
-            Path.mkdir(folder_path)
-
-    def init_logging(self):
-        logs_path = self.get_path("app.log")
-        if not Path(logs_path).exists():
-            with open(logs_path, "w") as f:
-                f.write("")
+    def init_logger(self):
+        self.logger = logging.getLogger("app")
+        self.logger.setLevel(logging.INFO)
+        self.handler = WatchedFileHandler(self.path, encoding="utf-8")
+        self.handler.setFormatter(
+            logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+        )
+        self.logger.addHandler(self.handler)

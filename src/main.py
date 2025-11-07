@@ -1,26 +1,33 @@
+# libs
 import flet as ft
+from pathlib import Path
 
-from router.FletRouter import FletRouter
-from router.RouterBody import RouterBody
+# core
+from Core import System
+from Events import AppEvents
+from Router import Router
 
-from layout.LayoutTop import LayoutTop
-from layout.LayoutBottom import LayoutBottom
-from Core import AppContext
-from events.AppEvents import AppEvents
+# view
+from view.layout.LayoutTop import LayoutTop
+from view.layout.LayoutBottom import LayoutBottom
 
 
 def main(page: ft.Page):
-    app = AppContext(page, FletRouter(page), AppEvents())
-    routerBody = RouterBody(app)
+    system = System(Path.cwd())
+    events = AppEvents()
+    router = Router(page=page, events=events, system=system)
 
-    page.on_route_change = routerBody.route_change
-    page.go(app.app_root_path)
-
+    page.on_route_change = router.on_route_change
     page.scroll = ft.ScrollMode.ADAPTIVE
+    
+    layoutTop = LayoutTop(page=page, router=router, events=events)
+    layoutBottom = LayoutBottom(page=page, router=router, system=system)
 
-    page.add(LayoutTop(app).layout)
-    page.add(routerBody.body)
-    page.add(LayoutBottom(app).layout)
+    page.add(layoutTop.view)
+    page.add(router.body)
+    page.add(layoutBottom.view)
+    
+    page.go(str(system.root_path))
 
 
 ft.app(main)

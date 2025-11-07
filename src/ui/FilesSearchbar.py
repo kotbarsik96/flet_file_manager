@@ -1,12 +1,11 @@
 import flet as ft
-
 from pathlib import Path
-from Core import AppContext
-
+from Router import Router
 
 class FilesSearchbar:
-    def __init__(self, app: AppContext, col: dict[str, int] | int | None = None):
-        self.app = app
+    def __init__(self, page: ft.Page, router: Router, col: dict[str, int] | int | None = None):
+        self.page = page
+        self.router = router
         self.listView = ft.ListView(controls=[])
         self.control = ft.SearchBar(
             on_change=self.handle_change,
@@ -22,11 +21,11 @@ class FilesSearchbar:
         self.listView.controls.clear()
 
         if search_value.strip():
-            current_dir = Path(self.app.router.current_route)
+            current_dir = Path(self.router.current_route)
             rglob = current_dir.rglob(search_value)
 
             def on_item_click(path: str):
-                self.app.page.go(path)
+                self.page.go(path)
                 self.control.close_view(search_value)
 
             for entry in rglob:
@@ -40,7 +39,7 @@ class FilesSearchbar:
                     )
                 )
 
-        self.app.page.update()
+        self.page.update()
 
     def handle_tap(self, e: ft.ControlEvent):
         self.control.open_view()
