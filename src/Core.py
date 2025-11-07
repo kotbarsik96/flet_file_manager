@@ -2,7 +2,6 @@ import flet as ft
 
 from router.FletRouter import FletRouter
 from events.AppEvents import AppEvents
-from mediaQuery.MediaQueryManager import MediaQueryManager
 from utils.time import SetInterval
 from pathlib import Path
 
@@ -14,8 +13,7 @@ class AppContext:
         self,
         page: ft.Page,
         router: FletRouter,
-        events: AppEvents,
-        media_query_manager: MediaQueryManager,
+        events: AppEvents
     ):
         self.app_root_path = str(Path(".").absolute())
         self.system = System(self.app_root_path)
@@ -23,7 +21,6 @@ class AppContext:
         self.page = page
         self.router = router
         self.events = events
-        self.media_query_manager = media_query_manager
 
         self.init_timer()
 
