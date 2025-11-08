@@ -1,7 +1,7 @@
 import flet as ft, datetime
 from pathlib import Path
 from utils.file_system import format_bytes_to_string, get_dir_size
-from utils.time import format_seconds, SetInterval
+from utils.time import format_seconds, format_date, SetInterval
 import time
 from view.BaseView import BaseView
 from Core import System
@@ -61,10 +61,7 @@ class FolderView(BaseView):
             else format_bytes_to_string(get_dir_size(str(item.absolute())))
         )
 
-        formatDatetime = "%d.%m.%Y, %H:%M:%S"
-        updated = datetime.datetime.fromtimestamp(stat.st_mtime).strftime(
-            formatDatetime
-        )
+        updated = format_date(stat.st_mtime)
         row = ft.DataRow(
             cells=[
                 ft.DataCell(ft.Text(item.name)),

@@ -1,4 +1,4 @@
-import time, threading
+import time, threading, datetime
 from math import floor
 
 
@@ -7,10 +7,10 @@ def format_seconds(seconds: float | int):
 
     days = floor(seconds / (24 * 3600))
     seconds = seconds - days * 24 * 3600
-    
+
     hours = floor(seconds / 3600)
     seconds = seconds - hours * 3600
-    
+
     minutes = floor(seconds / 60)
     seconds = seconds - minutes * 60
 
@@ -24,6 +24,10 @@ def format_seconds(seconds: float | int):
     str += f"{seconds} сек."
 
     return str
+
+
+def format_date(timestamp: float | int, format="%d.%m.%Y, %H:%M:%S"):
+    return datetime.datetime.fromtimestamp(timestamp).strftime(format)
 
 
 class SetInterval:

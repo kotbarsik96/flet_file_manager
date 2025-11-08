@@ -8,7 +8,7 @@ from logging.handlers import WatchedFileHandler
 
 class System:
     app_running_seconds: int
-    
+
     def __init__(self, root_path: Path):
         self.root_path = root_path
         self.system_path = root_path / "system"
@@ -51,3 +51,8 @@ class Logger:
             logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
         )
         self.logger.addHandler(self.handler)
+        
+    def write_log(self, text):
+        print(text, self.path)
+        with open(self.path, "a") as log_file:
+            log_file.write(f"{text}\n")
