@@ -14,13 +14,9 @@ class FolderView(BaseView):
         self,
         page: ft.Page,
         system: System,
-        events: AppEvents,
-        go_prev_route: callable,
-        go_next_route: callable,
     ):
         self.page = page
         self.system = system
-        self.keyboard_controller = FolderViewKeyboardController(events=events, go_prev_route=go_prev_route, go_next_route=go_next_route)
         self.build_view()
 
     def route_to_path(self):
@@ -48,7 +44,6 @@ class FolderView(BaseView):
                 it.iterdir(),
             )
         )
-        self.keyboard_controller.rows = rows
 
         self.view = ft.ResponsiveRow(
             [
@@ -126,30 +121,3 @@ class FolderView(BaseView):
 
         return ft.Column([os_session_timer_control], col={"xs": 12, "xl": 4})
 
-
-class FolderViewKeyboardController:
-    rows: list[ft.DataRow]
-    current_selected_index: int | None
-
-    def __init__(self, events: AppEvents, go_prev_route: callable, go_next_route: callable):
-        self.go_prev_route = go_prev_route
-        self.go_next_route = go_next_route
-        self.current_selected_index = None
-        self.rows = []
-
-        events.keyboard.subscribe(self.handle_keyboard)
-
-    def update_rows(self, rows):
-        self.rows = rows
-
-    def handle_keyboard(self, event: ft.KeyboardEvent):
-        if event.key == "Arrow Left" and event.ctrl:
-            self.handle_arrow_left(event)
-        if event.key == "Arrow Right" and event.ctrl:
-            self.handle_arrow_right(event)
-
-    def handle_arrow_left(self, event: ft.KeyboardEvent):
-        self.go_prev_route()
-
-    def handle_arrow_right(self, event: ft.KeyboardEvent):
-        self.go_next_route()

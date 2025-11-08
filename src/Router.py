@@ -48,7 +48,7 @@ class Router:
         )
 
     def create_view(self, route: ft.RouteChangeEvent):
-        return FolderView(page=self.page, system=self.system, events=self.events, go_prev_route=self.go_prev_route, go_next_route=self.go_next_route)
+        return FolderView(page=self.page, system=self.system)
 
     def get_previuos_route(self):
         if len(self.history_backward) > 0:
