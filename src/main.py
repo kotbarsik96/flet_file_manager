@@ -25,7 +25,10 @@ def main(page: ft.Page):
 
     page.on_route_change = router.on_route_change
     page.scroll = ft.ScrollMode.ADAPTIVE
+    page.on_keyboard_event = lambda e: events.keyboard.trigger(e)
     
+    # events.keyboard.subscribe(lambda e: print(e)) # debug событий клавиатуры
+
     layoutMenuBar = LayoutMenuBar(page=page)
     layoutTop = LayoutTop(page=page, router=router, events=events)
     layoutBottom = LayoutBottom(page=page, router=router, system=system)
@@ -34,7 +37,7 @@ def main(page: ft.Page):
     page.add(layoutTop.view)
     page.add(router.body)
     page.add(layoutBottom.view)
-    
+
     page.go(str(system.root_path))
     system.logger.write_log(f"Программа открыта | {format_date(time.time())}")
 

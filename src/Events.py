@@ -1,17 +1,25 @@
+import flet as ft
 from events.Event import Event
 from Core import System
 import time
 from utils.time import format_date
 
+
 class AppEvents:
     def __init__(self, system: System):
-        self.route_changed = Event()
         self.system = system
-        
+
+        self.route_changed = Event()
+        self.keyboard = Event()
+
         self.log_events()
-        
+
     def log_events(self):
-        self.route_changed.subscribe(lambda route, **_: self.system.logger.write_log(f"Переход на маршрут: {route} | {format_date(time.time())}"))
+        self.route_changed.subscribe(
+            lambda route, **_: self.system.logger.write_log(
+                f"Переход на маршрут: {route} | {format_date(time.time())}"
+            )
+        )
 
 
 class Event:
@@ -27,3 +35,8 @@ class Event:
     def trigger(self, *args, **kwargs):
         for cb in self.listeners:
             cb(*args, **kwargs)
+
+
+class KeyboardEvent(Event):
+    def trigger(self, event: ft.KeyboardEvent):
+        super.trigger(event)

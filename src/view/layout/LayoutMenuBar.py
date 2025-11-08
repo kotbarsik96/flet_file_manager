@@ -31,15 +31,28 @@ class LayoutMenuBar(BaseView):
                             content=ft.Text("О программе"),
                             leading=ft.Icon(ft.Icons.INFO),
                             on_click=self.on_help_click,
-                        )
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text("Горячие клавиши"),
+                            leading=ft.Icon(ft.Icons.KEYBOARD),
+                            on_click=self.on_hotkeys_click,
+                        ),
                     ],
                 ),
             ],
         )
 
+    def open_info_dialog(self, title, content):
+        dlg = ft.AlertDialog(
+            title=title,
+            content=content,
+            actions=[ft.TextButton("Закрыть", on_click=lambda e: self.page.close(dlg))],
+        )
+        self.page.open(dlg)
+
     def on_help_click(self, e):
         font_size = 18
-        dlg = ft.AlertDialog(
+        self.open_info_dialog(
             title=ft.Text("О программе"),
             content=ft.Column(
                 [
@@ -53,9 +66,30 @@ class LayoutMenuBar(BaseView):
                     ft.Text("Группа: ИВТз-43у", size=font_size),
                 ]
             ),
-            actions=[ft.TextButton("Закрыть", on_click=lambda e: self.page.close(dlg))],
         )
-        self.page.open(dlg)
+
+    def on_hotkeys_click(self, e):
+        font_size = 18
+
+        self.open_info_dialog(
+            title=ft.Text("Горячие клавиши"),
+            content=ft.Column(
+                [
+                    ft.Text(
+                        "– Стрелки вверх-вниз: навигация по доступным кнопкам в приложении",
+                        size=font_size,
+                    ),
+                    ft.Text(
+                        "– CTRL + Стрелка влево: перейти на предыдущую страницу",
+                        size=font_size,
+                    ),
+                    ft.Text(
+                        "– CTRL + Стрелка вправо: перейти на следующую страницу",
+                        size=font_size,
+                    ),
+                ]
+            ),
+        )
 
     def on_terminal_click(self, e):
         msg = "Терминал открыт через файловый менеджер"
@@ -76,15 +110,8 @@ class LayoutMenuBar(BaseView):
             )
         else:
             error_msg = "Не найден установленный терминал"
-            dlg = ft.AlertDialog(
-                content=ft.Text(error_msg, size=18),
+            self.open_info_dialog(
                 title=ft.Text("Ошибка"),
-                actions=[
-                    ft.TextButton(
-                        "Закрыть",
-                        on_click=lambda _: self.page.close(dlg),
-                    )
-                ],
+                content=ft.Text(error_msg, size=18),
             )
-            self.page.open(dlg)
             raise RuntimeError(error_msg)
