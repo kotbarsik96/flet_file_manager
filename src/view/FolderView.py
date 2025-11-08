@@ -14,10 +14,14 @@ class FolderView(BaseView):
         self,
         page: ft.Page,
         system: System,
+        events: AppEvents
     ):
         self.page = page
         self.system = system
+        self.events = events
+        
         self.build_view()
+        events.keyboard.subscribe(self.handle_keyboard)
 
     def route_to_path(self):
         return str(Path(self.page.route).absolute())
@@ -32,13 +36,13 @@ class FolderView(BaseView):
             )
             self.page.open(dlg)
 
-        columns = [
+        self.columns = [
             ft.DataColumn(ft.Text("Название")),
             ft.DataColumn(ft.Text("Тип")),
             ft.DataColumn(ft.Text("Дата изменения")),
             ft.DataColumn(ft.Text("Вес")),
         ]
-        rows = list(
+        self.rows = list(
             map(
                 self.create_row,
                 it.iterdir(),
@@ -48,7 +52,7 @@ class FolderView(BaseView):
         self.view = ft.ResponsiveRow(
             [
                 ft.DataTable(
-                    columns=columns, rows=rows, width=750, col={"xs": 12, "xl": 8}
+                    columns=self.columns, rows=self.rows, width=750, col={"xs": 12, "xl": 8}
                 ),
                 self.create_timers(),
             ],
@@ -79,7 +83,7 @@ class FolderView(BaseView):
         )
 
         if item.is_dir():
-            row.on_select_changed = lambda _: self.page.go(str(item.absolute()))
+            row.on_select_changed = lambda e: print(e)
 
         return row
 
@@ -121,3 +125,11 @@ class FolderView(BaseView):
 
         return ft.Column([os_session_timer_control], col={"xs": 12, "xl": 4})
 
+    def handle_keyboard(self, event: ft.KeyboardEvent):
+        if event.key == 'Delete':
+            self.handle_delete(event)
+            
+    def handle_delete(self, event: ft.KeyboardEvent):
+        print(event)
+        selected_rows = [row for row in self.rows if row.selected]
+        print(selected_rows)
