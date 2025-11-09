@@ -35,8 +35,3 @@ class Event:
     def trigger(self, *args, **kwargs):
         for cb in self.listeners:
             cb(*args, **kwargs)
-
-
-class KeyboardEvent(Event):
-    def trigger(self, event: ft.KeyboardEvent):
-        super.trigger(event)

@@ -8,159 +8,179 @@ from Core import System
 from Events import AppEvents
 
 
+class FolderColumns:
+    def __init__(self):
+        self.columns_list = [
+            ft.Container(
+                ft.Text("Название", size=folderViewStyles.font_size),
+                col=1,
+                border=ft.border.only(
+                    top=folderViewStyles.table_border,
+                    right=folderViewStyles.table_border,
+                    bottom=folderViewStyles.table_border,
+                ),
+                padding=folderViewStyles.cell_padding,
+            ),
+            ft.Container(
+                ft.Text("Тип", size=folderViewStyles.font_size),
+                col=1,
+                border=ft.border.only(
+                    top=folderViewStyles.table_border,
+                    right=folderViewStyles.table_border,
+                    bottom=folderViewStyles.table_border,
+                ),
+                padding=folderViewStyles.cell_padding,
+            ),
+            ft.Container(
+                ft.Text("Дата изменения", size=folderViewStyles.font_size),
+                col=1,
+                border=ft.border.only(
+                    top=folderViewStyles.table_border,
+                    right=folderViewStyles.table_border,
+                    bottom=folderViewStyles.table_border,
+                ),
+                padding=folderViewStyles.cell_padding,
+            ),
+            ft.Container(
+                ft.Text("Вес", size=folderViewStyles.font_size),
+                col=1,
+                border=ft.border.only(
+                    top=folderViewStyles.table_border,
+                    bottom=folderViewStyles.table_border,
+                ),
+                padding=folderViewStyles.cell_padding,
+            ),
+        ]
+        self.cols_count = len(self.columns_list)
+        self.columns_view = ft.ResponsiveRow(
+            self.columns_list, columns=self.cols_count, spacing=0
+        )
+
+
+class FolderRowItem:
+    row: ft.ResponsiveRow
+    row_container: ft.Container
+
+    def __init__(self, path: Path, cols_count: int):
+        self.path = path
+
+        # тип: папка или расширение файла
+        self.extension = (
+            "Папка" if path.is_dir() else "Файл ." + path.name.split(".")[-1]
+        )
+        # размер
+        self.stat = path.stat()
+        self.size = (
+            format_bytes_to_string(self.stat.st_size)
+            if path.is_file()
+            else format_bytes_to_string(get_dir_size(str(path.absolute())))
+        )
+        # время последнего обновления
+        self.updated = format_date(self.stat.st_mtime)
+
+        self.row_container = ft.Container(
+            ft.ResponsiveRow(
+                [
+                    ft.Container(
+                        ft.Text(path.name, size=folderViewStyles.font_size),
+                        col=1,
+                        border=ft.border.only(
+                            right=folderViewStyles.table_border,
+                            bottom=folderViewStyles.table_border,
+                        ),
+                        padding=folderViewStyles.cell_padding,
+                    ),
+                    ft.Container(
+                        ft.Text(self.extension, size=folderViewStyles.font_size),
+                        col=1,
+                        border=ft.border.only(
+                            right=folderViewStyles.table_border,
+                            bottom=folderViewStyles.table_border,
+                        ),
+                        padding=folderViewStyles.cell_padding,
+                    ),
+                    ft.Container(
+                        ft.Text(self.updated, size=folderViewStyles.font_size),
+                        col=1,
+                        border=ft.border.only(
+                            right=folderViewStyles.table_border,
+                            bottom=folderViewStyles.table_border,
+                        ),
+                        padding=folderViewStyles.cell_padding,
+                    ),
+                    ft.Container(
+                        ft.Text(self.size, size=folderViewStyles.font_size),
+                        col=1,
+                        border=ft.border.only(bottom=folderViewStyles.table_border),
+                        padding=folderViewStyles.cell_padding,
+                    ),
+                ],
+                columns=cols_count,
+                spacing=0,
+            ),
+            on_click=lambda e: self.on_row_click(event=e),
+        )
+
+        self.row = ft.ResponsiveRow(
+            [self.row_container],
+        )
+
+        self._isSelected = False
+
+    def get_selected_state(self) -> bool:
+        return self._isSelected
+
+    def set_selected_state(self, _isSelected: bool):
+        self._isSelected = _isSelected
+
+        if self._isSelected:
+            pass
+        else:
+            pass
+
+    def on_row_click(self, event):
+        if self.path.is_dir():
+            self.page.go(str(self.path.absolute()))
+
+    def handle_delete(self):
+        print(self.path)
+
+
 class FolderView(BaseView):
-    row_containers = list[ft.Container]
+    row_items: list[FolderRowItem]
     selected_row_container_index: None | int
 
     def __init__(self, page: ft.Page, system: System, events: AppEvents):
         self.page = page
         self.system = system
         self.events = events
-        self.row_containers = []
+        self.row_items = []
         self.selected_row_container_index = None
-
-        self.styles = FolderViewStyles()
+        self.path = Path(self.page.route)
 
         self.build_view()
         events.keyboard.subscribe(self.handle_keyboard)
 
-    def route_to_path(self):
-        return str(Path(self.page.route).absolute())
-
     def build_view(self):
-        path = self.route_to_path()
-        it = Path(path)
-        if not it.exists():
-            it = Path(self.system.root_path)
+        if not self.path.exists():
             dlg = ft.AlertDialog(
-                title=ft.Text(f'Указанный путь "{path}" не существует')
+                title=ft.Text(f'Указанный путь "{self.path.resolve()}" не существует')
             )
+            self.path = Path(self.system.root_path)
             self.page.open(dlg)
 
-        self.columns = [
-            ft.Container(
-                ft.Text("Название", size=self.styles.font_size),
-                col=1,
-                border=ft.border.only(
-                    top=self.styles.table_border,
-                    right=self.styles.table_border,
-                    bottom=self.styles.table_border,
-                ),
-                padding=self.styles.cell_padding,
-            ),
-            ft.Container(
-                ft.Text("Тип", size=self.styles.font_size),
-                col=1,
-                border=ft.border.only(
-                    top=self.styles.table_border,
-                    right=self.styles.table_border,
-                    bottom=self.styles.table_border,
-                ),
-                padding=self.styles.cell_padding,
-            ),
-            ft.Container(
-                ft.Text("Дата изменения", size=self.styles.font_size),
-                col=1,
-                border=ft.border.only(
-                    top=self.styles.table_border,
-                    right=self.styles.table_border,
-                    bottom=self.styles.table_border,
-                ),
-                padding=self.styles.cell_padding,
-            ),
-            ft.Container(
-                ft.Text("Вес", size=self.styles.font_size),
-                col=1,
-                border=ft.border.only(
-                    top=self.styles.table_border, bottom=self.styles.table_border
-                ),
-                padding=self.styles.cell_padding,
-            ),
+        self.columns_data = FolderColumns()
+
+        self.row_items = [
+            FolderRowItem(path=path, cols_count=self.columns_data.cols_count)
+            for path in self.path.iterdir()
         ]
-        cols_count = len(self.columns)
 
-        self.rows = list(
-            map(
-                lambda item: self.create_row(item=item, cols_count=cols_count),
-                it.iterdir(),
-            )
-        )
-
-        view_content = [ft.ResponsiveRow(self.columns, columns=cols_count, spacing=0)]
-        view_content.extend(self.rows)
+        view_content = [self.columns_data.columns_view]
+        view_content.extend([row_item.row for row_item in self.row_items])
         view_content.extend([self.create_timers()])
 
         self.view = ft.Column(view_content, spacing=0)
-
-    def create_row(self, item: Path, cols_count: int):
-        # тип: папка или расширение файла
-        extension = "Папка" if item.is_dir() else "Файл ." + item.name.split(".")[-1]
-        # размер
-        stat = item.stat()
-        size = (
-            format_bytes_to_string(stat.st_size)
-            if item.is_file()
-            else format_bytes_to_string(get_dir_size(str(item.absolute())))
-        )
-        # время последнего обновления
-        updated = format_date(stat.st_mtime)
-
-        row_container = ft.Container(
-            ft.ResponsiveRow(
-                [
-                    ft.Container(
-                        ft.Text(item.name, size=self.styles.font_size),
-                        col=1,
-                        border=ft.border.only(
-                            right=self.styles.table_border,
-                            bottom=self.styles.table_border,
-                        ),
-                        padding=self.styles.cell_padding,
-                    ),
-                    ft.Container(
-                        ft.Text(extension, size=self.styles.font_size),
-                        col=1,
-                        border=ft.border.only(
-                            right=self.styles.table_border,
-                            bottom=self.styles.table_border,
-                        ),
-                        padding=self.styles.cell_padding,
-                    ),
-                    ft.Container(
-                        ft.Text(updated, size=self.styles.font_size),
-                        col=1,
-                        border=ft.border.only(
-                            right=self.styles.table_border,
-                            bottom=self.styles.table_border,
-                        ),
-                        padding=self.styles.cell_padding,
-                    ),
-                    ft.Container(
-                        ft.Text(size, size=self.styles.font_size),
-                        col=1,
-                        border=ft.border.only(bottom=self.styles.table_border),
-                        padding=self.styles.cell_padding,
-                    ),
-                ],
-                columns=cols_count,
-                spacing=0,
-            ),
-            on_click=lambda e: self.on_row_click(event=e, item=item),
-        )
-
-        row = ft.ResponsiveRow(
-            [row_container],
-        )
-
-        row_container.data = {"selected": False}
-
-        self.row_containers.append(row_container)
-
-        return row
-
-    def on_row_click(self, event, item: Path):
-        if item.is_dir():
-            self.page.go(str(item.absolute()))
 
     def create_timers(self):
         font_size = 18
@@ -211,10 +231,13 @@ class FolderView(BaseView):
             self.handle_arrow_up_or_down(event, direction="down")
 
     def handle_delete(self, event: ft.KeyboardEvent):
-        selected_rows = [row_container for row_container in self.row_containers if row_container.data["selected"]]
+        for row_item in [
+            row_item for row_item in self.row_items if row_item.get_selected_state()
+        ]:
+            row_item.handle_delete()
 
     def handle_arrow_up_or_down(self, event, direction: str):
-        rows_len = len(self.row_containers)
+        rows_len = len(self.row_items)
 
         if (
             not self.selected_row_container_index
@@ -235,18 +258,11 @@ class FolderView(BaseView):
             elif direction == "down":
                 self.selected_row_container_index = 0
 
-        self.select_row_container(self.selected_row_container_index)
-        print(self.selected_row_container_index)
-
-    def select_row_container(self, index):
-        rows_len = len(self.row_containers)
-
-        if 0 <= index < rows_len:
-            for idx, row_container in enumerate(self.row_containers):
-                if idx == index:
-                    row_container.data["selected"] = True
-                else:
-                    row_container.data["selected"] = False
+        for idx, row_item in enumerate(self.row_items):
+            if idx == self.selected_row_container_index:
+                row_item.set_selected_state(True)
+            else:
+                row_item.set_selected_state(False)
 
 
 class FolderViewStyles:
@@ -254,3 +270,6 @@ class FolderViewStyles:
         self.table_border = ft.border.BorderSide(1, "black")
         self.font_size = 18
         self.cell_padding = ft.padding.only(right=15, left=15, top=10, bottom=10)
+
+
+folderViewStyles = FolderViewStyles()
