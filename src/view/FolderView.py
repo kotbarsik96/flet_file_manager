@@ -5,6 +5,7 @@ from utils.time import format_date
 from view.BaseView import BaseView
 from Core import System
 from Events import AppEvents
+import shutil
 
 
 class FolderColumns:
@@ -60,14 +61,20 @@ class FolderRowItem:
     row: ft.ResponsiveRow
     row_container: ft.Container
 
-    def __init__(self, path: Path, cols_count: int, page: ft.Page):
+    def __init__(self, path: Path, cols_count: int, page: ft.Page, system: System):
         self.page = page
         self.path = path
+        self.system = system
 
         # тип: папка или расширение файла
-        self.extension = (
-            "Папка" if path.is_dir() else "Файл ." + path.name.split(".")[-1]
-        )
+        if path.is_dir():
+            self.extension = "Папка"
+        else:
+            split = path.name.split(".")
+            has_extension = len(split) > 1
+            self.extension = (
+                f"Файл {"." + split[-1] if has_extension else "без расширения"}"
+            )
         # размер
         self.stat = path.stat()
         self.size = (
@@ -129,6 +136,34 @@ class FolderRowItem:
 
         self._isSelected = False
 
+    def can_be_deleted(self, modal_on_failure: bool = False):
+        resolved_path = self.path.resolve()
+        # файл может быть удалён если он находится в корзине или не в папке system
+        can_be = self.is_in_trash() or not resolved_path.is_relative_to(
+            self.system.system_path
+        )
+
+        if not can_be and modal_on_failure:
+            text = (
+                "Данная папка не может быть удалена"
+                if self.path.is_dir()
+                else "Данный файл не может быть удален"
+            )
+            dlg = ft.AlertDialog(
+                title=ft.Text("Ошибка"),
+                content=ft.Text(text),
+                actions=[
+                    ft.TextButton("Закрыть", on_click=lambda _: self.page.close(dlg))
+                ],
+            )
+            self.page.open(dlg)
+
+        return can_be
+
+    def is_in_trash(self):
+        resolved_path = self.path.resolve()
+        return resolved_path.is_relative_to(self.system.trash.path)
+
     def get_selected_state(self) -> bool:
         return self._isSelected
 
@@ -159,6 +194,44 @@ class FolderRowItem:
             self.page.go(str(self.path.absolute()))
 
     def handle_delete(self):
+        if not self.can_be_deleted(True):
+            return
+
+        def do_delete(*_):
+            self.delete_path()
+            self.page.close(dlg)
+
+        dlg = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(
+                f'Удалить {"папку" if self.path.is_dir() else "файл"} "{self.path.name}"?'
+            ),
+            actions=[
+                ft.TextButton(
+                    "Удалить",
+                    on_click=do_delete,
+                ),
+                ft.TextButton("Не удалять", on_click=lambda _: self.page.close(dlg)),
+            ],
+        )
+
+        self.page.open(dlg)
+
+    def delete_path(self):
+        if not self.can_be_deleted(True):
+            return
+
+        if self.is_in_trash():
+            if self.path.is_dir():
+                shutil.rmtree(self.path)
+            else:
+                self.path.unlink()
+        else:
+            self.system.trash.add(self.path)
+            name = self.path.name
+            self.path = Path(self.system.trash.path / name)
+            
+        self.row.parent.controls.remove(self.row)
         self.page.update()
 
     def handle_arrow_right(self, event: ft.KeyboardEvent):
@@ -194,7 +267,10 @@ class FolderView(BaseView):
 
         self.row_items = [
             FolderRowItem(
-                path=path, cols_count=self.columns_data.cols_count, page=self.page
+                path=path,
+                cols_count=self.columns_data.cols_count,
+                page=self.page,
+                system=self.system,
             )
             for path in self.path.iterdir()
         ]
