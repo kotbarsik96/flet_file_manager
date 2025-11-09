@@ -148,9 +148,7 @@ class FolderRowItem:
     def on_hover(self, event: ft.HoverEvent):
         # когда курсор наведён
         if event.data == "true":
-            self.row_container.bgcolor = (
-                folderViewStyles.row_container_bg_color_hovered
-            )
+            self.row_container.bgcolor = folderViewStyles.row_container_bg_color_hovered
         # когда курсор убран
         else:
             self.row_container.bgcolor = folderViewStyles.row_container_bg_color
@@ -164,8 +162,8 @@ class FolderRowItem:
     def handle_delete(self):
         self.page.update()
 
-    def handle_enter(self):
-        if self.path.is_dir():
+    def handle_arrow_right(self, event: ft.KeyboardEvent):
+        if not event.ctrl and self.path.is_dir():
             self.page.go(str(self.path))
 
 
@@ -185,7 +183,7 @@ class FolderView(BaseView):
 
     def build_view(self):
         self.path = Path(self.page.route)
-        
+
         if not self.path.exists():
             dlg = ft.AlertDialog(
                 title=ft.Text(f'Указанный путь "{self.path.resolve()}" не существует')
@@ -256,8 +254,8 @@ class FolderView(BaseView):
         if event.key == "Arrow Down":
             self.handle_arrow_up_or_down(event, direction="down")
 
-        if event.key == "Enter":
-            self.handle_enter(event)
+        if event.key == "Arrow Right":
+            self.handle_arrow_right(event)
 
     def get_selected_rows(self):
         return [
@@ -296,13 +294,13 @@ class FolderView(BaseView):
             else:
                 row_item.set_selected_state(False)
 
-    def handle_enter(self, event: ft.KeyboardEvent):
+    def handle_arrow_right(self, event: ft.KeyboardEvent):
         selected_rows = self.get_selected_rows()
         if len(selected_rows) < 1:
             return
 
         first_selected = selected_rows[0]
-        first_selected.handle_enter()
+        first_selected.handle_arrow_right(event)
 
 
 class FolderViewStyles:
