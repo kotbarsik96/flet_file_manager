@@ -3,18 +3,21 @@ from view.BaseView import BaseView
 import subprocess
 import shutil
 from Core import System
+from Router import Router
 from ui.dialogs.MenuBarDialogs import (
     AppTimeDialog,
     HelpDialog,
     OSTimeDialog,
     HotkeysDialog,
+    SpaceStatsDialog,
 )
 
 
 class LayoutMenuBar(BaseView):
-    def __init__(self, page: ft.Page, system: System):
+    def __init__(self, page: ft.Page, system: System, router: Router):
         self.page = page
         self.system = system
+        self.router = router
 
         self.build_view()
 
@@ -39,6 +42,11 @@ class LayoutMenuBar(BaseView):
                             content=ft.Text("Время работы приложения"),
                             leading=ft.Icon(ft.Icons.TIMER),
                             on_click=self.on_app_time_click,
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text("Статистика текущего раздела диска"),
+                            leading=ft.Icon(ft.Icons.INCOMPLETE_CIRCLE_ROUNDED),
+                            on_click=self.on_space_stats_click,
                         ),
                     ],
                 ),
@@ -96,3 +104,6 @@ class LayoutMenuBar(BaseView):
 
     def on_app_time_click(self, e):
         AppTimeDialog(self.page, self.system)
+
+    def on_space_stats_click(self, e):
+        SpaceStatsDialog(self.page, self.system, self.router)

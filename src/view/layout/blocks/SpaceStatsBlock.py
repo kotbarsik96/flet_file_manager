@@ -8,14 +8,14 @@ from Router import Router
 from utils.file_system import format_bytes_to_string
 
 
-class LayoutBottom(BaseView):
+class SpaceStatsBlock(BaseView):
     def __init__(self, page: ft.Page, system: System, router: Router):
         self.page = page
         self.system = system
         self.router = router
-        
+
         self.build_view()
-    
+
     def build_view(self):
         path = (
             str(Path(self.router.current_route).absolute())
@@ -33,7 +33,7 @@ class LayoutBottom(BaseView):
 
         self.view = ft.Column(
             [
-                ft.Row(
+                ft.ResponsiveRow(
                     [
                         ft.Text(
                             "Пространство текущего раздела диска:", size=21, weight=700
@@ -42,7 +42,7 @@ class LayoutBottom(BaseView):
                 ),
                 ft.Container(
                     width=container_width,
-                    content=ft.Row(
+                    content=ft.ResponsiveRow(
                         [
                             ft.Column(
                                 controls=[

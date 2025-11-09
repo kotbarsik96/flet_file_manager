@@ -1,11 +1,13 @@
 import flet as ft
 from view.layout.blocks.TimerBlocks import TimerOS, TimerApp
 from Core import System
+from view.layout.blocks.SpaceStatsBlock import SpaceStatsBlock
+from Router import Router
 
 
 class BaseMenuBarDialog:
     dlg: ft.AlertDialog
-    
+
     def __init__(self, page: ft.Page):
         self.page = page
 
@@ -22,7 +24,7 @@ class BaseMenuBarDialog:
 class HelpDialog(BaseMenuBarDialog):
     def __init__(self, page: ft.Page):
         super().__init__(page)
-        
+
         paragraphs = [
             "Файловый менеджер на языке Python с использованием Flet",
             "Разработчик: Никифоров Алексей Владимирович",
@@ -39,7 +41,7 @@ class HelpDialog(BaseMenuBarDialog):
 class HotkeysDialog(BaseMenuBarDialog):
     def __init__(self, page: ft.Page):
         super().__init__(page)
-        
+
         paragraphs = [
             "– Стрелки вверх-вниз: навигация по доступным кнопкам в приложении",
             "– Стрелка вправо при выделенном элементе - открыть папку/файл (если поддерживается)",
@@ -57,7 +59,7 @@ class HotkeysDialog(BaseMenuBarDialog):
 class OSTimeDialog(BaseMenuBarDialog):
     def __init__(self, page: ft.Page):
         super().__init__(page)
-        
+
         timer = TimerOS(page)
         self.dlg = self.open(ft.Text("Время работы системы"), timer.timer_text)
         self.dlg.on_dismiss = timer.on_unmount
@@ -66,9 +68,18 @@ class OSTimeDialog(BaseMenuBarDialog):
 class AppTimeDialog(BaseMenuBarDialog):
     def __init__(self, page: ft.Page, system: System):
         super().__init__(page)
-        
+
         timer = TimerApp(page, system)
-        self.dlg = self.open(
-            ft.Text("Время работы приложения"), timer.timer_text
-        )
+        self.dlg = self.open(ft.Text("Время работы приложения"), timer.timer_text)
         self.dlg.on_dismiss = timer.on_unmount
+
+
+class SpaceStatsDialog(BaseMenuBarDialog):
+    def __init__(self, page: ft.Page, system: System, router: Router):
+        super().__init__(page)
+
+        self.block = SpaceStatsBlock(page, system, router)
+        self.dlg = self.open(
+            title=ft.Text("Статистика"),
+            content=self.block.view,
+        )
