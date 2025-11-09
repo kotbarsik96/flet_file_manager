@@ -2,18 +2,21 @@ import flet as ft
 from Events import AppEvents
 from view.FolderView import FolderView
 from Core import System
+from view.BaseView import BaseView
 
 
 class Router:
     history_backward = []
     history_forward = []
     current_route: str | None = None
+    created_views: dict[str, BaseView]
 
     def __init__(self, page: ft.Page, events: AppEvents, system: System):
         self.page = page
         self.events = events
         self.system = system
         self.body = ft.Container(margin=ft.margin.only(bottom=50, top=25))
+        self.created_views = {}
 
     def on_route_change(self, route: ft.RouteChangeEvent):
         prev_route = self.get_previuos_route()
@@ -48,7 +51,13 @@ class Router:
         )
 
     def create_view(self, route: ft.RouteChangeEvent):
-        return FolderView(page=self.page, system=self.system, events=self.events)
+        if not self.created_views.get("FolderView"):
+            self.created_views["FolderView"] = FolderView(
+                page=self.page, system=self.system, events=self.events
+            )
+
+        self.created_views["FolderView"].build_view()
+        return self.created_views["FolderView"]
 
     def get_previuos_route(self):
         if len(self.history_backward) > 0:

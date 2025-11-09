@@ -149,7 +149,7 @@ class FolderRowItem:
         # когда курсор наведён
         if event.data == "true":
             self.row_container.bgcolor = (
-                folderViewStyles.row_container_bg_color_selected
+                folderViewStyles.row_container_bg_color_hovered
             )
         # когда курсор убран
         else:
@@ -179,12 +179,13 @@ class FolderView(BaseView):
         self.events = events
         self.row_items = []
         self.selected_row_container_index = None
-        self.path = Path(self.page.route)
 
         self.build_view()
         events.keyboard.subscribe(self.handle_keyboard)
 
     def build_view(self):
+        self.path = Path(self.page.route)
+        
         if not self.path.exists():
             dlg = ft.AlertDialog(
                 title=ft.Text(f'Указанный путь "{self.path.resolve()}" не существует')
@@ -311,6 +312,7 @@ class FolderViewStyles:
         self.cell_padding = ft.padding.only(right=15, left=15, top=10, bottom=10)
         self.row_container_bg_color = ft.Colors.WHITE
         self.row_container_bg_color_selected = ft.Colors.BLUE_100
+        self.row_container_bg_color_hovered = ft.Colors.GREY_300
 
 
 folderViewStyles = FolderViewStyles()
