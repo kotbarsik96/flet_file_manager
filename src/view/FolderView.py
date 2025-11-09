@@ -61,7 +61,8 @@ class FolderRowItem:
     row: ft.ResponsiveRow
     row_container: ft.Container
 
-    def __init__(self, path: Path, cols_count: int):
+    def __init__(self, path: Path, cols_count: int, page: ft.Page):
+        self.page = page
         self.path = path
 
         # тип: папка или расширение файла
@@ -119,6 +120,8 @@ class FolderRowItem:
                 spacing=0,
             ),
             on_click=lambda e: self.on_row_click(event=e),
+            on_hover=self.on_hover,
+            bgcolor=folderViewStyles.row_container_bg_color,
         )
 
         self.row = ft.ResponsiveRow(
@@ -134,16 +137,36 @@ class FolderRowItem:
         self._isSelected = _isSelected
 
         if self._isSelected:
-            pass
+            self.row_container.bgcolor = (
+                folderViewStyles.row_container_bg_color_selected
+            )
         else:
-            pass
+            self.row_container.bgcolor = folderViewStyles.row_container_bg_color
+
+        self.page.update()
+
+    def on_hover(self, event: ft.HoverEvent):
+        # когда курсор наведён
+        if event.data == "true":
+            self.row_container.bgcolor = (
+                folderViewStyles.row_container_bg_color_selected
+            )
+        # когда курсор убран
+        else:
+            self.row_container.bgcolor = folderViewStyles.row_container_bg_color
+
+        self.page.update()
 
     def on_row_click(self, event):
         if self.path.is_dir():
             self.page.go(str(self.path.absolute()))
 
     def handle_delete(self):
-        print(self.path)
+        self.page.update()
+
+    def handle_enter(self):
+        if self.path.is_dir():
+            self.page.go(str(self.path))
 
 
 class FolderView(BaseView):
@@ -172,7 +195,9 @@ class FolderView(BaseView):
         self.columns_data = FolderColumns()
 
         self.row_items = [
-            FolderRowItem(path=path, cols_count=self.columns_data.cols_count)
+            FolderRowItem(
+                path=path, cols_count=self.columns_data.cols_count, page=self.page
+            )
             for path in self.path.iterdir()
         ]
 
@@ -230,10 +255,16 @@ class FolderView(BaseView):
         if event.key == "Arrow Down":
             self.handle_arrow_up_or_down(event, direction="down")
 
-    def handle_delete(self, event: ft.KeyboardEvent):
-        for row_item in [
+        if event.key == "Enter":
+            self.handle_enter(event)
+
+    def get_selected_rows(self):
+        return [
             row_item for row_item in self.row_items if row_item.get_selected_state()
-        ]:
+        ]
+
+    def handle_delete(self, event: ft.KeyboardEvent):
+        for row_item in self.get_selected_rows():
             row_item.handle_delete()
 
     def handle_arrow_up_or_down(self, event, direction: str):
@@ -264,12 +295,22 @@ class FolderView(BaseView):
             else:
                 row_item.set_selected_state(False)
 
+    def handle_enter(self, event: ft.KeyboardEvent):
+        selected_rows = self.get_selected_rows()
+        if len(selected_rows) < 1:
+            return
+
+        first_selected = selected_rows[0]
+        first_selected.handle_enter()
+
 
 class FolderViewStyles:
     def __init__(self):
         self.table_border = ft.border.BorderSide(1, "black")
         self.font_size = 18
         self.cell_padding = ft.padding.only(right=15, left=15, top=10, bottom=10)
+        self.row_container_bg_color = ft.Colors.WHITE
+        self.row_container_bg_color_selected = ft.Colors.BLUE_100
 
 
 folderViewStyles = FolderViewStyles()
