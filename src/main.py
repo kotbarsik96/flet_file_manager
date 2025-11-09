@@ -29,7 +29,7 @@ def main(page: ft.Page):
     
     # events.keyboard.subscribe(lambda e: print(e)) # debug событий клавиатуры
 
-    layoutMenuBar = LayoutMenuBar(page=page)
+    layoutMenuBar = LayoutMenuBar(page=page, system=system)
     layoutTop = LayoutTop(page=page, router=router, events=events)
     layoutBottom = LayoutBottom(page=page, router=router, system=system)
 

@@ -1,8 +1,7 @@
 import flet as ft
 from pathlib import Path
 from utils.file_system import format_bytes_to_string, get_dir_size
-from utils.time import format_seconds, format_date, SetInterval
-import time
+from utils.time import format_date
 from view.BaseView import BaseView
 from Core import System
 from Events import AppEvents
@@ -200,49 +199,14 @@ class FolderView(BaseView):
             for path in self.path.iterdir()
         ]
 
-        view_content = [self.columns_data.columns_view]
-        view_content.extend([row_item.row for row_item in self.row_items])
-        view_content.extend([self.create_timers()])
+        view_content = [
+            self.columns_data.columns_view,
+            ft.ListView(
+                controls=[row_item.row for row_item in self.row_items], height=500
+            ),
+        ]
 
         self.view = ft.Column(view_content, spacing=0)
-
-    def create_timers(self):
-        font_size = 18
-
-        os_session_timer_text = ft.Text(
-            format_seconds(time.monotonic()), size=font_size
-        )
-        app_session_timer_text = ft.Text(
-            format_seconds(self.system.app_running_seconds), size=font_size
-        )
-
-        def update_timers():
-            os_session_timer_text.value = format_seconds(time.monotonic())
-            app_session_timer_text.value = format_seconds(
-                self.system.app_running_seconds
-            )
-            self.page.update()
-
-        SetInterval(update_timers, 1)
-
-        os_session_timer_control = ft.Column(
-            [
-                ft.Column(
-                    [
-                        ft.Text("Время работы операционной системы:", size=font_size),
-                        os_session_timer_text,
-                    ]
-                ),
-                ft.Column(
-                    [
-                        ft.Text("Время работы приложения:", size=font_size),
-                        app_session_timer_text,
-                    ]
-                ),
-            ]
-        )
-
-        return ft.Column([os_session_timer_control], col={"xs": 12, "xl": 4})
 
     def handle_keyboard(self, event: ft.KeyboardEvent):
         if event.key == "Delete":
