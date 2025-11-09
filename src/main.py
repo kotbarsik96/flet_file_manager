@@ -7,6 +7,7 @@ import time
 from Core import System
 from Events import AppEvents
 from Router import Router
+from GlobalKeyboardHandler import GlobalKeyboardHandler
 
 # view
 from view.layout.LayoutMenuBar import LayoutMenuBar
@@ -14,7 +15,6 @@ from view.layout.LayoutTop import LayoutTop
 from view.layout.LayoutBottom import LayoutBottom
 
 # utils
-
 from utils.time import format_date
 
 
@@ -26,7 +26,9 @@ def main(page: ft.Page):
     page.on_route_change = router.on_route_change
     page.scroll = ft.ScrollMode.ADAPTIVE
     page.on_keyboard_event = lambda e: events.keyboard.trigger(e)
-    
+
+    GlobalKeyboardHandler(system=system, events=events, page=page)
+
     # events.keyboard.subscribe(lambda e: print(e)) # debug событий клавиатуры
 
     layoutMenuBar = LayoutMenuBar(page=page, system=system)

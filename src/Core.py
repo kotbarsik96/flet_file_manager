@@ -51,7 +51,7 @@ class Logger:
             logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
         )
         self.logger.addHandler(self.handler)
-        
+
     def write_log(self, text):
         print(text, self.path)
         with open(self.path, "a") as log_file:

@@ -2,8 +2,13 @@ import flet as ft
 from view.BaseView import BaseView
 import subprocess
 import shutil
-from view.layout.blocks.TimerBlocks import TimerOS, TimerApp
 from Core import System
+from ui.dialogs.MenuBarDialogs import (
+    AppTimeDialog,
+    HelpDialog,
+    OSTimeDialog,
+    HotkeysDialog,
+)
 
 
 class LayoutMenuBar(BaseView):
@@ -55,44 +60,11 @@ class LayoutMenuBar(BaseView):
             ],
         )
 
-    def open_info_dialog(self, title, content):
-        dlg = ft.AlertDialog(
-            title=title,
-            content=content,
-            actions=[ft.TextButton("Закрыть", on_click=lambda e: self.page.close(dlg))],
-        )
-        self.page.open(dlg)
-        return dlg
-
     def on_help_click(self, e):
-        paragraphs = [
-            "Файловый менеджер на языке Python с использованием Flet",
-            "Разработчик: Никифоров Алексей Владимирович",
-            "Группа: ИВТз-43у",
-        ]
-
-        content = ft.Column(controls=[])
-        for paragraph in paragraphs:
-            content.controls.append(ft.Text(paragraph, size=18))
-
-        self.open_info_dialog(
-            title=ft.Text("О программе"),
-            content=content,
-        )
+        HelpDialog(page=self.page)
 
     def on_hotkeys_click(self, e):
-        paragraphs = [
-            "– Стрелки вверх-вниз: навигация по доступным кнопкам в приложении",
-            "– Стрелка вправо при выделенном элементе - открыть папку/файл (если поддерживается)",
-            "– CTRL + Стрелка влево: перейти на предыдущую страницу",
-            "– CTRL + Стрелка вправо: перейти на следующую страницу",
-        ]
-
-        content = ft.Column(controls=[])
-        for paragraph in paragraphs:
-            content.controls.append(ft.Text(paragraph, size=18))
-
-        self.open_info_dialog(title=ft.Text("Горячие клавиши"), content=content)
+        HotkeysDialog(page=self.page)
 
     def on_terminal_click(self, e):
         msg = "Терминал открыт через файловый менеджер"
@@ -120,11 +92,7 @@ class LayoutMenuBar(BaseView):
             raise RuntimeError(error_msg)
 
     def on_os_time_click(self, e):
-        timer = TimerOS(self.page)
-        dlg = self.open_info_dialog("Время работы системы", timer.timer_text)
-        dlg.on_dismiss = timer.on_onmount
+        OSTimeDialog(self.page)
 
     def on_app_time_click(self, e):
-        timer = TimerApp(self.page, self.system)
-        dlg = self.open_info_dialog("Время работы приложения", timer.timer_text)
-        dlg.on_dismiss = timer.on_onmount
+        AppTimeDialog(self.page, self.system)
