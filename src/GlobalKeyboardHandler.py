@@ -15,12 +15,18 @@ class GlobalKeyboardHandler:
     def handle_keyboard(self, event: ft.KeyboardEvent):
         if event.key == "F3":
             self.open_hotkeys()
+            
+        if event.key == "F6":
+            self.open_system_folder()
 
     def open_help(self):
         HelpDialog(page=self.page)
-        
+
     def open_hotkeys(self):
         HotkeysDialog(page=self.page)
 
     def open_logs(self):
         pass
+
+    def open_system_folder(self):
+        self.page.go(str(self.system.system_path))
