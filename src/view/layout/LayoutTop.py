@@ -5,17 +5,27 @@ from pathlib import Path
 from ui.FilesSearchbar import FilesSearchbar
 from Router import Router
 from Events import AppEvents
+from Core import System
 
 
 class LayoutTop(BaseView):
-    def __init__(self, page: ft.Page, router: Router, events: AppEvents):
+    def __init__(
+        self, page: ft.Page, router: Router, events: AppEvents, system: System
+    ):
         self.page = page
         self.router = router
         self.events = events
-        
-        self.build_view()
+        self.system = system
+
+        self.on_mounted()
         events.keyboard.subscribe(self.handle_keyboard)
-    
+
+    def on_mounted(self):
+        self.build_view()
+
+    def on_unmount(self):
+        pass
+
     def build_view(self):
         self.buttonBack = ft.IconButton(
             icon=ft.Icons.CHEVRON_LEFT,
@@ -28,20 +38,19 @@ class LayoutTop(BaseView):
 
         self.location_text = ft.Text(self.router.current_route, size=21)
 
-        self.searchbar = FilesSearchbar(page=self.page, router=self.router, col={"xs": 12, "lg": 6})
+        self.searchbar = FilesSearchbar(
+            page=self.page, router=self.router, col={"xs": 12, "lg": 6}
+        )
 
         self.view = ft.Column(
             [
                 ft.ResponsiveRow(
                     [
-                        ft.Row(
-                            [self.buttonBack, self.buttonForward],
-                            col=1
-                        ),
+                        ft.Row([self.buttonBack, self.buttonForward], col=1),
                         self.searchbar.control,
                     ],
                     columns=12,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
                 self.location_text,
             ],

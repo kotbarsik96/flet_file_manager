@@ -31,8 +31,8 @@ def main(page: ft.Page):
 
     # events.keyboard.subscribe(lambda e: print(e)) # debug событий клавиатуры
 
-    layoutMenuBar = LayoutMenuBar(page=page, system=system, router=router)
-    layoutTop = LayoutTop(page=page, router=router, events=events)
+    layoutMenuBar = LayoutMenuBar(page=page, system=system, router=router, events=events)
+    layoutTop = LayoutTop(page=page, router=router, events=events, system=system)
 
     page.add(ft.Row([layoutMenuBar.view]))
     page.add(layoutTop.view)

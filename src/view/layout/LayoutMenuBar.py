@@ -3,6 +3,7 @@ from view.BaseView import BaseView
 import subprocess
 import shutil
 from Core import System
+from Events import AppEvents
 from Router import Router
 from ui.dialogs.MenuBarDialogs import (
     AppTimeDialog,
@@ -14,12 +15,21 @@ from ui.dialogs.MenuBarDialogs import (
 
 
 class LayoutMenuBar(BaseView):
-    def __init__(self, page: ft.Page, system: System, router: Router):
+    def __init__(
+        self, page: ft.Page, system: System, events: AppEvents, router: Router
+    ):
         self.page = page
         self.system = system
+        self.events = events
         self.router = router
 
+        self.on_mounted()
+
+    def on_mounted(self):
         self.build_view()
+
+    def on_unmount(self):
+        pass
 
     def build_view(self):
         self.view = ft.MenuBar(
@@ -85,7 +95,11 @@ class LayoutMenuBar(BaseView):
             )
         elif shutil.which("xterm"):
             return subprocess.Popen(
-                ["xterm", "-e", f"bash -lc echo '${msg}'; cd {self.router.current_route}; exec bash"]
+                [
+                    "xterm",
+                    "-e",
+                    f"bash -lc echo '${msg}'; cd {self.router.current_route}; exec bash",
+                ]
             )
         else:
             error_msg = "Не найден установленный терминал"

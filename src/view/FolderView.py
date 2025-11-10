@@ -260,13 +260,11 @@ class FolderView(BaseView):
     selected_row_container_index: None | int
 
     def __init__(self, page: ft.Page, system: System, events: AppEvents):
-        self.page = page
-        self.system = system
-        self.events = events
+        super().__init__(page=page, system=system, events=events)
+        
         self.row_items = []
         self.selected_row_container_index = None
 
-        self.build_view()
         events.keyboard.subscribe(self.handle_keyboard)
 
     def build_view(self):
@@ -299,6 +297,12 @@ class FolderView(BaseView):
         ]
 
         self.view = ft.Column(view_content, spacing=0)
+    
+    def on_mounted(self):
+        self.build_view()
+
+    def on_unmount(self):
+        pass
 
     def handle_keyboard(self, event: ft.KeyboardEvent):
         if event.key == "Delete":
