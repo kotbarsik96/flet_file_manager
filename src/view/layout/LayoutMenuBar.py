@@ -36,17 +36,19 @@ class LayoutMenuBar(BaseView):
                         ft.MenuItemButton(
                             content=ft.Text("Время работы системы"),
                             leading=ft.Icon(ft.Icons.COMPUTER),
-                            on_click=self.on_os_time_click,
+                            on_click=lambda _: OSTimeDialog(self.page),
                         ),
                         ft.MenuItemButton(
                             content=ft.Text("Время работы приложения"),
                             leading=ft.Icon(ft.Icons.TIMER),
-                            on_click=self.on_app_time_click,
+                            on_click=lambda _: AppTimeDialog(self.page, self.system),
                         ),
                         ft.MenuItemButton(
                             content=ft.Text("Статистика текущего раздела диска"),
                             leading=ft.Icon(ft.Icons.INCOMPLETE_CIRCLE_ROUNDED),
-                            on_click=self.on_space_stats_click,
+                            on_click=lambda _: SpaceStatsDialog(
+                                self.page, self.system, self.router
+                            ),
                         ),
                     ],
                 ),
@@ -56,23 +58,17 @@ class LayoutMenuBar(BaseView):
                         ft.MenuItemButton(
                             content=ft.Text("О программе"),
                             leading=ft.Icon(ft.Icons.INFO),
-                            on_click=self.on_help_click,
+                            on_click=lambda _: HelpDialog(page=self.page),
                         ),
                         ft.MenuItemButton(
                             content=ft.Text("Горячие клавиши"),
                             leading=ft.Icon(ft.Icons.KEYBOARD),
-                            on_click=self.on_hotkeys_click,
+                            on_click=lambda _: HotkeysDialog(page=self.page),
                         ),
                     ],
                 ),
             ],
         )
-
-    def on_help_click(self, e):
-        HelpDialog(page=self.page)
-
-    def on_hotkeys_click(self, e):
-        HotkeysDialog(page=self.page)
 
     def on_terminal_click(self, e):
         msg = "Терминал открыт через файловый менеджер"
@@ -84,12 +80,12 @@ class LayoutMenuBar(BaseView):
                     "--",
                     "bash",
                     "-c",
-                    f"echo '{msg}'; exec bash",
+                    f"echo '{msg}'; cd {self.router.current_route}; exec bash",
                 ]
             )
         elif shutil.which("xterm"):
             return subprocess.Popen(
-                ["xterm", "-e", f"bash -lc echo '${msg}'; exec bash"]
+                ["xterm", "-e", f"bash -lc echo '${msg}'; cd {self.router.current_route}; exec bash"]
             )
         else:
             error_msg = "Не найден установленный терминал"
@@ -98,12 +94,3 @@ class LayoutMenuBar(BaseView):
                 content=ft.Text(error_msg, size=18),
             )
             raise RuntimeError(error_msg)
-
-    def on_os_time_click(self, e):
-        OSTimeDialog(self.page)
-
-    def on_app_time_click(self, e):
-        AppTimeDialog(self.page, self.system)
-
-    def on_space_stats_click(self, e):
-        SpaceStatsDialog(self.page, self.system, self.router)
