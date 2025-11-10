@@ -401,13 +401,14 @@ class FolderRowItemRenameDialog:
             hint_text="Новое название",
             icon=icon,
             on_change=self.handle_change,
-            autofocus=True
+            autofocus=True,
+            width=500
         )
 
         self.dlg = ft.AlertDialog(
             modal=True,
             title=ft.Text(f"Переименовать {self.row_item.path.name}"),
-            content=ft.Column([self.text_field]),
+            content=ft.ResponsiveRow([self.text_field]),
             actions=[
                 ft.TextButton("Сохранить", on_click=lambda _: self.try_save()),
                 ft.TextButton(
@@ -423,10 +424,16 @@ class FolderRowItemRenameDialog:
         self.row_item.page.update()
 
     def try_save(self):
-        if not self.text_field.value.strip():
-            self.text_field.error_text = f"Недопустимое название {"папки" if self.row_item.path.is_dir() else "файла"}"
-        else:
+        incorrectMsg = f"Недопустимое название {"папки" if self.row_item.path.is_dir() else "файла"}"
+
+        # допустимое имя файла - изменить
+        try:
             self.row_item.path = self.row_item.path.rename(self.text_field.value)
             self.row_item.update_data()
             self.row_item.page.close(self.dlg)
+        # имя файла недопустимо - выдать ошибку
+        except:
+            self.text_field.error_text = incorrectMsg
             self.row_item.page.update()
+
+        self.row_item.page.update()
