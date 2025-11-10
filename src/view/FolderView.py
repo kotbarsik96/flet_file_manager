@@ -66,61 +66,49 @@ class FolderRowItem:
         self.path = path
         self.system = system
 
-        # тип: папка или расширение файла
-        if path.is_dir():
-            self.extension = "Папка"
-        else:
-            split = path.name.split(".")
-            has_extension = len(split) > 1
-            self.extension = (
-                f"Файл {"." + split[-1] if has_extension else "без расширения"}"
-            )
-        # размер
-        self.stat = path.stat()
-        self.size = (
-            format_bytes_to_string(self.stat.st_size)
-            if path.is_file()
-            else format_bytes_to_string(get_dir_size(str(path.absolute())))
+        self.name_row = ft.Container(
+            ft.Text("", size=folderViewStyles.font_size),
+            col=1,
+            border=ft.border.only(
+                right=folderViewStyles.table_border,
+                bottom=folderViewStyles.table_border,
+            ),
+            padding=folderViewStyles.cell_padding,
         )
-        # время последнего обновления
-        self.updated = format_date(self.stat.st_mtime)
+        self.extension_row = ft.Container(
+            ft.Text("", size=folderViewStyles.font_size),
+            col=1,
+            border=ft.border.only(
+                right=folderViewStyles.table_border,
+                bottom=folderViewStyles.table_border,
+            ),
+            padding=folderViewStyles.cell_padding,
+        )
+        self.updated_row = ft.Container(
+            ft.Text("", size=folderViewStyles.font_size),
+            col=1,
+            border=ft.border.only(
+                right=folderViewStyles.table_border,
+                bottom=folderViewStyles.table_border,
+            ),
+            padding=folderViewStyles.cell_padding,
+        )
+        self.size_row = ft.Container(
+            ft.Text("", size=folderViewStyles.font_size),
+            col=1,
+            border=ft.border.only(bottom=folderViewStyles.table_border),
+            padding=folderViewStyles.cell_padding,
+        )
+
+        self.update_data()
 
         self.row_container = ft.Container(
             ft.ResponsiveRow(
                 [
-                    ft.Container(
-                        ft.Text(path.name, size=folderViewStyles.font_size),
-                        col=1,
-                        border=ft.border.only(
-                            right=folderViewStyles.table_border,
-                            bottom=folderViewStyles.table_border,
-                        ),
-                        padding=folderViewStyles.cell_padding,
-                    ),
-                    ft.Container(
-                        ft.Text(self.extension, size=folderViewStyles.font_size),
-                        col=1,
-                        border=ft.border.only(
-                            right=folderViewStyles.table_border,
-                            bottom=folderViewStyles.table_border,
-                        ),
-                        padding=folderViewStyles.cell_padding,
-                    ),
-                    ft.Container(
-                        ft.Text(self.updated, size=folderViewStyles.font_size),
-                        col=1,
-                        border=ft.border.only(
-                            right=folderViewStyles.table_border,
-                            bottom=folderViewStyles.table_border,
-                        ),
-                        padding=folderViewStyles.cell_padding,
-                    ),
-                    ft.Container(
-                        ft.Text(self.size, size=folderViewStyles.font_size),
-                        col=1,
-                        border=ft.border.only(bottom=folderViewStyles.table_border),
-                        padding=folderViewStyles.cell_padding,
-                    ),
+                    self.name_row,
+                    self.extension_row,
+                    self.updated_row,
+                    self.size_row,
                 ],
                 columns=cols_count,
                 spacing=0,
@@ -135,6 +123,31 @@ class FolderRowItem:
         )
 
         self._isSelected = False
+
+    def update_data(self):
+        # тип: папка или расширение файла
+        if self.path.is_dir():
+            self.extension = "Папка"
+        else:
+            split = self.path.name.split(".")
+            has_extension = len(split) > 1
+            self.extension = (
+                f"Файл {"." + split[-1] if has_extension else "без расширения"}"
+            )
+        # размер
+        self.stat = self.path.stat()
+        self.size = (
+            format_bytes_to_string(self.stat.st_size)
+            if self.path.is_file()
+            else format_bytes_to_string(get_dir_size(str(self.path.absolute())))
+        )
+        # время последнего обновления
+        self.updated = format_date(self.stat.st_mtime)
+
+        self.name_row.content.value = self.path.name
+        self.extension_row.content.value = self.extension
+        self.size_row.content.value = self.size
+        self.updated_row.content.value = self.updated
 
     def can_be_deleted(self, modal_on_failure: bool = False):
         resolved_path = self.path.resolve()
@@ -230,13 +243,16 @@ class FolderRowItem:
             self.system.trash.add(self.path)
             name = self.path.name
             self.path = Path(self.system.trash.path / name)
-            
+
         self.row.parent.controls.remove(self.row)
         self.page.update()
 
     def handle_arrow_right(self, event: ft.KeyboardEvent):
         if not event.ctrl and self.path.is_dir():
             self.page.go(str(self.path))
+
+    def handle_rename(self):
+        FolderRowItemRenameDialog(self)
 
 
 class FolderView(BaseView):
@@ -297,10 +313,20 @@ class FolderView(BaseView):
         if event.key == "Arrow Right":
             self.handle_arrow_right(event)
 
+        if event.key == "F2":
+            self.handle_f2(event)
+
     def get_selected_rows(self):
         return [
             row_item for row_item in self.row_items if row_item.get_selected_state()
         ]
+
+    def get_first_selected_row(self):
+        selected_rows = self.get_selected_rows()
+        if len(selected_rows) < 1:
+            return None
+
+        return selected_rows[0]
 
     def handle_delete(self, event: ft.KeyboardEvent):
         for row_item in self.get_selected_rows():
@@ -335,12 +361,18 @@ class FolderView(BaseView):
                 row_item.set_selected_state(False)
 
     def handle_arrow_right(self, event: ft.KeyboardEvent):
-        selected_rows = self.get_selected_rows()
-        if len(selected_rows) < 1:
+        first_selected = self.get_first_selected_row()
+        if not first_selected:
             return
 
-        first_selected = selected_rows[0]
         first_selected.handle_arrow_right(event)
+
+    def handle_f2(self, event: ft.KeyboardEvent):
+        first_selected = self.get_first_selected_row()
+        if not first_selected:
+            return
+
+        first_selected.handle_rename()
 
 
 class FolderViewStyles:
@@ -354,3 +386,47 @@ class FolderViewStyles:
 
 
 folderViewStyles = FolderViewStyles()
+
+
+class FolderRowItemRenameDialog:
+    def __init__(self, row_item: FolderRowItem):
+        self.row_item = row_item
+
+        icon = icon = (
+            ft.Icons.FOLDER if self.row_item.path.is_dir() else ft.Icons.FILE_OPEN
+        )
+        self.text_field = ft.TextField(
+            label="Название",
+            value=self.row_item.path.name,
+            hint_text="Новое название",
+            icon=icon,
+            on_change=self.handle_change,
+            autofocus=True
+        )
+
+        self.dlg = ft.AlertDialog(
+            modal=True,
+            title=ft.Text(f"Переименовать {self.row_item.path.name}"),
+            content=ft.Column([self.text_field]),
+            actions=[
+                ft.TextButton("Сохранить", on_click=lambda _: self.try_save()),
+                ft.TextButton(
+                    "Отмена", on_click=lambda _: self.row_item.page.close(self.dlg)
+                ),
+            ],
+        )
+
+        self.row_item.page.open(self.dlg)
+
+    def handle_change(self, event):
+        self.text_field.error_text = None
+        self.row_item.page.update()
+
+    def try_save(self):
+        if not self.text_field.value.strip():
+            self.text_field.error_text = f"Недопустимое название {"папки" if self.row_item.path.is_dir() else "файла"}"
+        else:
+            self.row_item.path = self.row_item.path.rename(self.text_field.value)
+            self.row_item.update_data()
+            self.row_item.page.close(self.dlg)
+            self.row_item.page.update()
