@@ -114,6 +114,7 @@ class FolderRowItem:
                 spacing=0,
             ),
             on_click=lambda e: self.on_row_click(event=e),
+            on_long_press=lambda e: self.on_long_press(event=e),
             on_hover=self.on_hover,
             bgcolor=folderViewStyles.row_container_bg_color,
         )
@@ -205,6 +206,22 @@ class FolderRowItem:
     def on_row_click(self, event):
         if self.path.is_dir():
             self.page.go(str(self.path.absolute()))
+
+    def on_long_press(self, event):
+        delete_action = ft.TextButton(
+            "Переместить в корзину",
+            on_click=lambda _: self.handle_delete(),
+        )
+        rename_action = ft.TextButton(
+            "Переименовать", on_click=lambda _: self.handle_rename()
+        )
+
+        dlg = ft.AlertDialog(
+            title=self.path.name,
+            content=ft.ListView([delete_action, rename_action], width=500),
+            actions=[ft.TextButton("Отмена", on_click=lambda _: self.page.close(dlg))],
+        )
+        self.page.open(dlg)
 
     def handle_delete(self):
         if not self.can_be_deleted(True):
@@ -406,6 +423,7 @@ class FolderRowItemRenameDialog:
             hint_text="Новое название",
             icon=icon,
             on_change=self.handle_change,
+            on_submit=lambda _: self.try_save(),
             autofocus=True,
             width=500,
         )
