@@ -261,11 +261,17 @@ class FolderView(BaseView):
 
     def __init__(self, page: ft.Page, system: System, events: AppEvents):
         super().__init__(page=page, system=system, events=events)
-        
+
         self.row_items = []
         self.selected_row_container_index = None
 
         events.keyboard.subscribe(self.handle_keyboard)
+
+    def on_mounted(self):
+        self.build_view()
+
+    def on_unmount(self):
+        pass
 
     def build_view(self):
         self.path = Path(self.page.route)
@@ -297,12 +303,7 @@ class FolderView(BaseView):
         ]
 
         self.view = ft.Column(view_content, spacing=0)
-    
-    def on_mounted(self):
-        self.build_view()
-
-    def on_unmount(self):
-        pass
+        self.title = str(self.path)
 
     def handle_keyboard(self, event: ft.KeyboardEvent):
         if event.key == "Delete":
@@ -406,7 +407,7 @@ class FolderRowItemRenameDialog:
             icon=icon,
             on_change=self.handle_change,
             autofocus=True,
-            width=500
+            width=500,
         )
 
         self.dlg = ft.AlertDialog(

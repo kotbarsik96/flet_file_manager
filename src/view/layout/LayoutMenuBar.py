@@ -1,7 +1,5 @@
 import flet as ft
 from view.BaseView import BaseView
-import subprocess
-import shutil
 from Core import System
 from Events import AppEvents
 from Router import Router
@@ -12,6 +10,7 @@ from ui.dialogs.MenuBarDialogs import (
     HotkeysDialog,
     SpaceStatsDialog,
 )
+from utils.general import open_os_terminal
 
 
 class LayoutMenuBar(BaseView):
@@ -39,31 +38,35 @@ class LayoutMenuBar(BaseView):
                     content=ft.Text("Файл"),
                     controls=[
                         ft.MenuItemButton(
-                            content=ft.Text("Открыть терминал (внешний, ОС)"),
-                            leading=ft.Icon(ft.Icons.TERMINAL),
-                            on_click=self.on_terminal_os_click,
-                        ),
-                        ft.MenuItemButton(
-                            content=ft.Text("Открыть терминал (встроенный)"),
-                            leading=ft.Icon(ft.Icons.TERMINAL_OUTLINED),
-                            on_click=self.on_terminal_embed_click,
-                        ),
-                        ft.MenuItemButton(
-                            content=ft.Text("Время работы системы"),
-                            leading=ft.Icon(ft.Icons.COMPUTER),
-                            on_click=lambda _: OSTimeDialog(self.page),
-                        ),
-                        ft.MenuItemButton(
-                            content=ft.Text("Время работы приложения"),
-                            leading=ft.Icon(ft.Icons.TIMER),
-                            on_click=lambda _: AppTimeDialog(self.page, self.system),
-                        ),
-                        ft.MenuItemButton(
-                            content=ft.Text("Статистика текущего раздела диска"),
+                            content=ft.Text("Статистика текущего раздела диска (F5)"),
                             leading=ft.Icon(ft.Icons.INCOMPLETE_CIRCLE_ROUNDED),
                             on_click=lambda _: SpaceStatsDialog(
                                 self.page, self.system, self.router
                             ),
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text("Открыть терминал (встроенный) (F6)"),
+                            leading=ft.Icon(ft.Icons.TERMINAL_OUTLINED),
+                            on_click=self.on_terminal_embed_click,
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text(
+                                "Открыть терминал (внешний, ОС) (CTRL + F6)"
+                            ),
+                            leading=ft.Icon(ft.Icons.TERMINAL),
+                            on_click=lambda _: open_os_terminal(
+                                page=self.page, router=self.router
+                            ),
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text("Время работы системы (F7)"),
+                            leading=ft.Icon(ft.Icons.COMPUTER),
+                            on_click=lambda _: OSTimeDialog(self.page),
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text("Время работы приложения (CTRL + F7)"),
+                            leading=ft.Icon(ft.Icons.TIMER),
+                            on_click=lambda _: AppTimeDialog(self.page, self.system),
                         ),
                     ],
                 ),
@@ -84,35 +87,6 @@ class LayoutMenuBar(BaseView):
                 ),
             ],
         )
-
-    def on_terminal_os_click(self, e):
-        msg = "Терминал открыт через файловый менеджер"
-
-        if shutil.which("gnome-terminal"):
-            return subprocess.Popen(
-                [
-                    "gnome-terminal",
-                    "--",
-                    "bash",
-                    "-c",
-                    f"echo '{msg}'; cd {self.router.current_route}; exec bash",
-                ]
-            )
-        elif shutil.which("xterm"):
-            return subprocess.Popen(
-                [
-                    "xterm",
-                    "-e",
-                    f"bash -lc echo '${msg}'; cd {self.router.current_route}; exec bash",
-                ]
-            )
-        else:
-            error_msg = "Не найден установленный терминал"
-            self.open_info_dialog(
-                title=ft.Text("Ошибка"),
-                content=ft.Text(error_msg, size=18),
-            )
-            raise RuntimeError(error_msg)
 
     def on_terminal_embed_click(self, e):
         self.page.go("__Terminal__")

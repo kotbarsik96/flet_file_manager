@@ -2,8 +2,13 @@ import flet as ft
 from Events import AppEvents
 from Core import System
 from Router import Router
-
-from ui.dialogs.MenuBarDialogs import HelpDialog, HotkeysDialog, SpaceStatsDialog
+from utils.general import open_os_terminal
+from ui.dialogs.MenuBarDialogs import (
+    HotkeysDialog,
+    SpaceStatsDialog,
+    AppTimeDialog,
+    OSTimeDialog,
+)
 
 
 class GlobalKeyboardHandler:
@@ -25,9 +30,18 @@ class GlobalKeyboardHandler:
 
         if event.key == "F5":
             SpaceStatsDialog(self.page, self.system, self.router)
-            
+
         if event.key == "F6":
-            self.page.go("__Terminal__")
+            if event.ctrl:
+                open_os_terminal(page=self.page, router=self.router)
+            else:
+                self.page.go("__Terminal__")
+
+        if event.key == "F7":
+            if event.ctrl:
+                AppTimeDialog(self.page, self.system)
+            else:
+                OSTimeDialog(self.page)
 
     def open_system_folder(self):
         self.page.go(str(self.system.system_path))

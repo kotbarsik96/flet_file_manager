@@ -7,10 +7,13 @@ from Events import AppEvents
 class BaseView(ABC):
     view: ft.Control
 
-    def __init__(self, page: ft.Page, system: System, events: AppEvents):
+    def __init__(
+        self, page: ft.Page, system: System, events: AppEvents, title: str | None = None
+    ):
         self.page = page
         self.system = system
         self.events = events
+        self.title = title
 
     @abstractmethod
     def on_mounted(self):

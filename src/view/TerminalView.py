@@ -7,28 +7,19 @@ from Events import AppEvents
 class TerminalView(BaseView):
     def __init__(self, page: ft.Page, system: System, events: AppEvents):
         super().__init__(page=page, system=system, events=events)
+        
+        self.title = "Терминал"
 
     def on_mounted(self):
         self.exit_event = threading.Event()
 
         # создание терминала
-        self.master_fd, self.slave_fd = pty.openpty()
-
-        # запуск bash в дочернем процессе
-        self.pid = os.fork()
+        self.pid, self.master_fd = pty.fork()
 
         if self.pid == 0:  # Дочерний процесс
-            # Перенаправить stdin, stdout, stderr на терминал
-            os.dup2(self.slave_fd, 0)
-            os.dup2(self.slave_fd, 1)
-            os.dup2(self.slave_fd, 2)
-            os.close(self.master_fd)
-            os.close(self.slave_fd)
-            subprocess.run(["bash"])
-            os._exit(0)
-
-        # родительский процесс
-        os.close(self.slave_fd)
+            # запустить оболочку bash, заменяющую текущий дочерний процесс
+            os.execvp('bash', ['bash'])
+            os._exit(1) # Этот код не должен выполниться, если execvp сработал
 
         self.events.terminal_message.subscribe(self.on_message)
 
@@ -41,15 +32,15 @@ class TerminalView(BaseView):
     def on_unmount(self):
         # Сигнализировать потоку о завершении
         self.exit_event.set()
-        # Закрыть файловый дескриптор, чтобы разблокировать os.read()
-        os.close(self.master_fd)
-        # Заверершить дочерний процесс bash
+        
+        # Завершить дочерний процесс bash
         try:
             os.kill(self.pid, 15)  # Отправить сигнал SIGTERM
         except ProcessLookupError:
             pass  # Процесс мог уже завершиться
 
         self.events.terminal_message.unsubscribe(self.on_message)
+        os.close(self.master_fd)
 
     def build_view(self):
         self.terminal_output = ft.Text(
@@ -88,7 +79,7 @@ class TerminalView(BaseView):
         """Читает вывод из терминала в отдельном потоке."""
         while not self.exit_event.is_set():
             try:
-                output = os.read(self.master_fd, 1024)
+                output = os.read(self.master_fd, 65536)
                 if output:
                     self.events.terminal_message.trigger(
                         output.decode("utf-8", errors="ignore")

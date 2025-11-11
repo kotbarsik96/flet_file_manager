@@ -14,7 +14,13 @@ class SpaceStatsBlock(BaseView):
         self.system = system
         self.router = router
 
+        self.on_mounted()
+
+    def on_mounted(self):
         self.build_view()
+        
+    def on_unmount(self):
+        pass
 
     def build_view(self):
         path = (

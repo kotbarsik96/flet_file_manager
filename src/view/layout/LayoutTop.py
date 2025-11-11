@@ -62,7 +62,7 @@ class LayoutTop(BaseView):
     def on_route_change(self, **_):
         self.buttonBack.disabled = len(self.router.history_backward) < 1
         self.buttonForward.disabled = len(self.router.history_forward) < 1
-        self.location_text.value = str(Path(self.router.current_route).absolute())
+        self.location_text.value = self.router.view.title or 'Файловый менеджер'
 
         self.page.update()
 
