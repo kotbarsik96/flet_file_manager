@@ -12,7 +12,7 @@ class Router:
     current_route: str | None = None
     created_views: dict[str, BaseView]
     view: BaseView
-    routes_map = {"__TerminalView__": TerminalView}
+    routes_map = {"__Terminal__": TerminalView}
 
     def __init__(self, page: ft.Page, events: AppEvents, system: System):
         self.page = page

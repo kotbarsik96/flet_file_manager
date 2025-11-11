@@ -11,6 +11,7 @@ class AppEvents:
 
         self.route_changed = Event()
         self.keyboard = Event()
+        self.terminal_message = Event()
 
         self.log_events()
 

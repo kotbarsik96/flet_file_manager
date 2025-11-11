@@ -25,6 +25,9 @@ class GlobalKeyboardHandler:
 
         if event.key == "F5":
             SpaceStatsDialog(self.page, self.system, self.router)
+            
+        if event.key == "F6":
+            self.page.go("__Terminal__")
 
     def open_system_folder(self):
         self.page.go(str(self.system.system_path))

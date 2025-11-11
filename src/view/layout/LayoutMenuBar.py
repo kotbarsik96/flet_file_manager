@@ -39,9 +39,14 @@ class LayoutMenuBar(BaseView):
                     content=ft.Text("Файл"),
                     controls=[
                         ft.MenuItemButton(
-                            content=ft.Text("Открыть терминал"),
+                            content=ft.Text("Открыть терминал (внешний, ОС)"),
                             leading=ft.Icon(ft.Icons.TERMINAL),
-                            on_click=self.on_terminal_click,
+                            on_click=self.on_terminal_os_click,
+                        ),
+                        ft.MenuItemButton(
+                            content=ft.Text("Открыть терминал (встроенный)"),
+                            leading=ft.Icon(ft.Icons.TERMINAL_OUTLINED),
+                            on_click=self.on_terminal_embed_click,
                         ),
                         ft.MenuItemButton(
                             content=ft.Text("Время работы системы"),
@@ -80,7 +85,7 @@ class LayoutMenuBar(BaseView):
             ],
         )
 
-    def on_terminal_click(self, e):
+    def on_terminal_os_click(self, e):
         msg = "Терминал открыт через файловый менеджер"
 
         if shutil.which("gnome-terminal"):
@@ -108,3 +113,6 @@ class LayoutMenuBar(BaseView):
                 content=ft.Text(error_msg, size=18),
             )
             raise RuntimeError(error_msg)
+
+    def on_terminal_embed_click(self, e):
+        self.page.go("__Terminal__")
