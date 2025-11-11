@@ -211,17 +211,27 @@ class FolderRowItem:
         delete_action = ft.TextButton(
             "Переместить в корзину",
             on_click=lambda _: self.handle_delete(),
+            icon=ft.Icons.CANCEL,
         )
         rename_action = ft.TextButton(
-            "Переименовать", on_click=lambda _: self.handle_rename()
+            "Переименовать",
+            on_click=lambda _: self.handle_rename(),
+            icon=ft.Icons.DRIVE_FILE_RENAME_OUTLINE_OUTLINED,
         )
 
-        dlg = ft.AlertDialog(
+        context_dlg = ft.AlertDialog(
             title=self.path.name,
-            content=ft.ListView([delete_action, rename_action], width=500),
-            actions=[ft.TextButton("Отмена", on_click=lambda _: self.page.close(dlg))],
+            content=ft.Container(
+                ft.ListView(
+                    [delete_action, rename_action],
+                    width=500,
+                ),
+            ),
+            actions=[
+                ft.TextButton("Отмена", on_click=lambda _: self.page.close(context_dlg))
+            ],
         )
-        self.page.open(dlg)
+        self.page.open(context_dlg)
 
     def handle_delete(self):
         if not self.can_be_deleted(True):
