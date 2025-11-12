@@ -24,7 +24,7 @@ class SpaceStatsBlock(BaseView):
 
     def build_view(self):
         path = (
-            str(Path(self.router.current_route).absolute())
+            str(Path(self.system.root_path).absolute())
             if self.router.current_route
             else "."
         )

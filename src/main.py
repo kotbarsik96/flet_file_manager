@@ -24,6 +24,8 @@ def main(page: ft.Page):
     system = System(Path.cwd())
     events = AppEvents(system=system)
     router = Router(page=page, events=events, system=system)
+    
+    page.bgcolor=ft.Colors.GREY_100
 
     page.on_route_change = router.on_route_change
     page.scroll = ft.ScrollMode.ADAPTIVE
