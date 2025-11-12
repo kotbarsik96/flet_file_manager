@@ -150,7 +150,7 @@ class FolderRowItem:
         self.size_row.content.value = self.size
         self.updated_row.content.value = self.updated
 
-    def can_be_deleted(self, modal_on_failure: bool = False):
+    def can_be_deleted_or_renamed(self, modal_on_failure: bool = False):
         resolved_path = self.path.resolve()
         # файл может быть удалён если он находится в корзине или не в папке system
         can_be = self.is_in_trash() or not resolved_path.is_relative_to(
@@ -159,9 +159,9 @@ class FolderRowItem:
 
         if not can_be and modal_on_failure:
             text = (
-                "Данная папка не может быть удалена"
+                "Данная папка не может быть удалена/переименована"
                 if self.path.is_dir()
-                else "Данный файл не может быть удален"
+                else "Данный файл не может быть удалён/переименован"
             )
             dlg = ft.AlertDialog(
                 title=ft.Text("Ошибка"),
@@ -176,7 +176,7 @@ class FolderRowItem:
 
     def is_in_trash(self):
         resolved_path = self.path.resolve()
-        return resolved_path.is_relative_to(self.system.trash.path)
+        return resolved_path.is_relative_to(self.system.trash.path) and resolved_path != self.system.trash.path
 
     def get_selected_state(self) -> bool:
         return self._isSelected
@@ -234,7 +234,7 @@ class FolderRowItem:
         self.page.open(context_dlg)
 
     def handle_delete(self):
-        if not self.can_be_deleted(True):
+        if not self.can_be_deleted_or_renamed(True):
             return
 
         def do_delete(*_):
@@ -258,7 +258,7 @@ class FolderRowItem:
         self.page.open(dlg)
 
     def delete_path(self):
-        if not self.can_be_deleted(True):
+        if not self.can_be_deleted_or_renamed(True):
             return
 
         if self.is_in_trash():
@@ -279,6 +279,9 @@ class FolderRowItem:
             self.page.go(str(self.path))
 
     def handle_rename(self):
+        if not self.can_be_deleted_or_renamed(True):
+            return
+        
         FolderRowItemRenameDialog(self)
 
 
