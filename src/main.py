@@ -12,7 +12,6 @@ from GlobalKeyboardHandler import GlobalKeyboardHandler
 # view
 from view.layout.LayoutMenuBar import LayoutMenuBar
 from view.layout.LayoutTop import LayoutTop
-from view.layout.blocks.SpaceStatsBlock import SpaceStatsBlock
 
 # utils
 from utils.time import format_date
