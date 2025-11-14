@@ -1,4 +1,4 @@
-import flet as ft, pty, threading, subprocess, os, select, signal
+import flet as ft, pty, threading, os
 from view.BaseView import BaseView
 from Core import System
 from Events import AppEvents
