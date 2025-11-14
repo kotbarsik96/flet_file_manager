@@ -1,9 +1,12 @@
-import flet as ft
+import flet as ft, os, re
 from pathlib import Path
 from Router import Router
 
+
 class FilesSearchbar:
-    def __init__(self, page: ft.Page, router: Router, col: dict[str, int] | int | None = None):
+    def __init__(
+        self, page: ft.Page, router: Router, col: dict[str, int] | int | None = None
+    ):
         self.page = page
         self.router = router
         self.listView = ft.ListView(controls=[])
@@ -13,33 +16,50 @@ class FilesSearchbar:
             controls=[self.listView],
             bar_hint_text="Поиск во вложенных каталогах...",
             view_hint_text="Название файла или папки",
-            col=col
+            col=col,
         )
 
     def handle_change(self, e: ft.ControlEvent):
-        search_value = e.data
+        self.search_value = re.escape(e.data.lower())
         self.listView.controls.clear()
 
-        if search_value.strip():
+        stripped = self.search_value.strip()
+        if stripped and len(stripped) > 3:
             current_dir = Path(self.router.current_route)
-            rglob = current_dir.rglob(search_value)
+            limit = 5
+            i = 0
+            for root, dirs, files in os.walk(current_dir):
+                if i >= limit:
+                    break
+                
+                for dir_name in dirs:
+                    if re.search(self.search_value, dir_name.lower()):
+                        self.append_found_entity(Path(f"{root}/{dir_name}"))
 
-            def on_item_click(path: str):
-                self.page.go(path)
-                self.control.close_view(search_value)
-
-            for entry in rglob:
-                self.listView.controls.append(
-                    ft.ListTile(
-                        title=ft.Text(entry.name),
-                        subtitle=ft.Text(str(entry.absolute())),
-                        on_click=lambda _, iteration_entry=entry: on_item_click(
-                            str(iteration_entry.absolute())
-                        ),
-                    )
-                )
+                for file_name in files:
+                    if re.search(self.search_value, file_name.lower()):
+                        self.append_found_entity(Path(f"{root}/{file_name}"))
+                        
+                i += 1
 
         self.page.update()
 
+    def append_found_entity(self, path: Path):
+        self.listView.controls.append(
+            ft.ListTile(
+                title=ft.Text(path.name),
+                subtitle=ft.Text(str(path.absolute())),
+                on_click=lambda _: self.on_item_click(path),
+            )
+        )
+
     def handle_tap(self, e: ft.ControlEvent):
         self.control.open_view()
+
+    def on_item_click(self, path: Path):
+        if path.is_dir():
+            self.page.go(str(path.absolute()))
+        else:
+            self.page.go(str(path.parent.absolute()))
+
+        self.control.close_view(self.search_value)
