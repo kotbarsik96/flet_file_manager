@@ -20,7 +20,8 @@ class FilesSearchbar:
         )
 
     def handle_change(self, e: ft.ControlEvent):
-        self.search_value = re.escape(e.data.lower())
+        self.search_value = e.data.lower()
+        escaped_value = re.escape(self.search_value)
         self.listView.controls.clear()
 
         stripped = self.search_value.strip()
@@ -33,11 +34,11 @@ class FilesSearchbar:
                     break
                 
                 for dir_name in dirs:
-                    if re.search(self.search_value, dir_name.lower()):
+                    if re.search(escaped_value, dir_name.lower()):
                         self.append_found_entity(Path(f"{root}/{dir_name}"))
 
                 for file_name in files:
-                    if re.search(self.search_value, file_name.lower()):
+                    if re.search(escaped_value, file_name.lower()):
                         self.append_found_entity(Path(f"{root}/{file_name}"))
                         
                 i += 1
