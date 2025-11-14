@@ -295,12 +295,12 @@ class FolderView(BaseView):
         self.row_items = []
         self.selected_row_container_index = None
 
-        events.keyboard.subscribe(self.handle_keyboard)
-
     def on_mounted(self):
+        self.events.keyboard.subscribe(self.handle_keyboard)
         self.build_view()
 
     def on_unmount(self):
+        self.events.keyboard.unsubscribe(self.handle_keyboard)
         pass
 
     def build_view(self):
