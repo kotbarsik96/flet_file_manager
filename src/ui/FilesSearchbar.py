@@ -25,23 +25,24 @@ class FilesSearchbar:
         self.listView.controls.clear()
 
         stripped = self.search_value.strip()
-        if stripped and len(stripped) > 3:
+        if stripped and len(stripped) >= 3:
             current_dir = Path(self.router.current_route)
-            limit = 5
-            i = 0
+            results_limit = 5
+            results_count = 0
             for root, dirs, files in os.walk(current_dir):
-                if i >= limit:
+                _root = "" if root == "/" else root
+                if results_count >= results_limit:
                     break
-                
+
                 for dir_name in dirs:
                     if re.search(escaped_value, dir_name.lower()):
-                        self.append_found_entity(Path(f"{root}/{dir_name}"))
+                        results_count += 1
+                        self.append_found_entity(Path(f"{_root}/{dir_name}"))
 
                 for file_name in files:
                     if re.search(escaped_value, file_name.lower()):
-                        self.append_found_entity(Path(f"{root}/{file_name}"))
-                        
-                i += 1
+                        results_count += 1
+                        self.append_found_entity(Path(f"{_root}/{file_name}"))
 
         self.page.update()
 

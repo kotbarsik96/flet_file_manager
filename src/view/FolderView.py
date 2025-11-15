@@ -328,7 +328,7 @@ class FolderView(BaseView):
         view_content = [
             self.columns_data.columns_view,
             ft.ListView(
-                controls=[row_item.row for row_item in self.row_items], height=500
+                controls=[row_item.row for row_item in self.row_items], height=400
             ),
         ]
 
