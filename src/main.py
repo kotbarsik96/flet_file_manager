@@ -20,7 +20,7 @@ from utils.time import format_date
 def main(page: ft.Page):
     page.title = "PSUTI File Manager"
     
-    system = System(Path.cwd())
+    system = System(Path("/var/www/psuti/file_manager_build"))
     events = AppEvents(system=system)
     router = Router(page=page, events=events, system=system)
     
@@ -43,7 +43,7 @@ def main(page: ft.Page):
     page.add(layoutTop.view)
     page.add(router.body)
 
-    page.go(str(system.root_path))
+    page.go("/")
     system.logger.write_log(f"Программа открыта | {format_date(time.time())}")
 
 
