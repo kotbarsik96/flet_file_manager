@@ -2,6 +2,7 @@ import flet as ft
 import subprocess
 import shutil
 from Router import Router
+import threading
 
 
 def open_os_terminal(page: ft.Page, router: Router):
@@ -43,3 +44,22 @@ def open_info_dialog(page: ft.Page, title: ft.Text, content: ft.Control):
     )
     page.open(dlg)
     return dlg
+
+
+def debounce(wait_seconds: int):
+    def decorator(fn):
+        def debounced(*args, **kwargs):
+            def call_fn():
+                fn(*args, **kwargs)
+
+            try:
+                debounced.timer.cancel()
+            except AttributeError:
+                pass
+
+            debounced.timer = threading.Timer(wait_seconds, call_fn)
+            debounced.timer.start()
+
+        return debounced
+
+    return decorator

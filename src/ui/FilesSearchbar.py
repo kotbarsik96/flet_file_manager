@@ -1,6 +1,7 @@
 import flet as ft, os, re
 from pathlib import Path
 from Router import Router
+from utils.general import debounce
 
 
 class FilesSearchbar:
@@ -19,6 +20,10 @@ class FilesSearchbar:
             col=col,
         )
 
+        self.control.bar_leading = ft.Icon(ft.Icons.SEARCH)
+        self.control.view_leading = ft.Icon(ft.Icons.SEARCH)
+
+    @debounce(0.5)
     def handle_change(self, e: ft.ControlEvent):
         self.search_value = e.data.lower()
         escaped_value = re.escape(self.search_value)
@@ -29,9 +34,11 @@ class FilesSearchbar:
             current_dir = Path(self.router.current_route)
             results_limit = 5
             results_count = 0
+            iterations_limit = 14000
+            i = 0
             for root, dirs, files in os.walk(current_dir):
                 _root = "" if root == "/" else root
-                if results_count >= results_limit:
+                if results_count >= results_limit or i >= iterations_limit:
                     break
 
                 for dir_name in dirs:
@@ -43,6 +50,8 @@ class FilesSearchbar:
                     if re.search(escaped_value, file_name.lower()):
                         results_count += 1
                         self.append_found_entity(Path(f"{_root}/{file_name}"))
+
+                i += 1
 
         self.page.update()
 
