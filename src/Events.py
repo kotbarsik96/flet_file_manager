@@ -1,5 +1,3 @@
-import flet as ft
-from events.Event import Event
 from Core import System
 import time
 from utils.time import format_date
