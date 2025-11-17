@@ -20,7 +20,7 @@ from utils.time import format_date
 def main(page: ft.Page):
     page.title = "PSUTI File Manager"
     
-    system = System(Path("/var/www/psuti/file_manager_build"))
+    system = System(Path.home() / "psuti/flet_file_manager")
     events = AppEvents(system=system)
     router = Router(page=page, events=events, system=system)
     
