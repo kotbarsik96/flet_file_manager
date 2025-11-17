@@ -38,6 +38,13 @@ class LayoutMenuBar(BaseView):
                     content=ft.Text("Файл"),
                     controls=[
                         ft.MenuItemButton(
+                            content=ft.Text("Открыть системную папку (F4)"),
+                            leading=ft.Icon(ft.Icons.FOLDER),
+                            on_click=lambda _: SpaceStatsDialog(
+                                self.page, self.system, self.router
+                            ),
+                        ),
+                        ft.MenuItemButton(
                             content=ft.Text("Статистика текущего раздела диска (F5)"),
                             leading=ft.Icon(ft.Icons.INCOMPLETE_CIRCLE_ROUNDED),
                             on_click=lambda _: SpaceStatsDialog(
@@ -79,7 +86,7 @@ class LayoutMenuBar(BaseView):
                             on_click=lambda _: HelpDialog(page=self.page),
                         ),
                         ft.MenuItemButton(
-                            content=ft.Text("Горячие клавиши"),
+                            content=ft.Text("Горячие клавиши (F3)"),
                             leading=ft.Icon(ft.Icons.KEYBOARD),
                             on_click=lambda _: HotkeysDialog(page=self.page),
                         ),
